@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import CalendarIntegration from "@/components/CalendarIntegration";
+import GiftRecipients from "@/components/GiftRecipients";
 
 const Index = () => {
   const { user } = useAuth();
@@ -50,6 +52,11 @@ const Index = () => {
           <h1 className="text-4xl font-semibold tracking-tight">Welcome, {user.name}</h1>
           <p className="text-lg text-foreground/60">Never miss a special day</p>
         </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CalendarIntegration />
+          <GiftRecipients />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <motion.div
