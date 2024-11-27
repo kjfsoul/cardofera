@@ -1,13 +1,43 @@
 import { useState } from "react";
 import { Calendar, Gift, Mail, Plus } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [upcomingBirthdays] = useState([
     { name: "Sarah Parker", date: "April 15", days: 3 },
     { name: "Michael Chen", date: "April 20", days: 8 },
     { name: "Emma Wilson", date: "April 25", days: 13 },
   ]);
+
+  if (!user) {
+    return (
+      <div className="min-h-screen p-6 bg-gradient-to-b from-background to-secondary/10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-5xl mx-auto space-y-8 text-center"
+        >
+          <header className="space-y-4">
+            <h1 className="text-4xl font-semibold tracking-tight">Birthday Buddy</h1>
+            <p className="text-lg text-foreground/60">Never miss a special day</p>
+          </header>
+          <div className="space-y-4">
+            <Button onClick={() => navigate("/signin")} size="lg" className="mx-2">
+              Sign In
+            </Button>
+            <Button onClick={() => navigate("/signup")} size="lg" variant="outline" className="mx-2">
+              Sign Up
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-background to-secondary/10">
@@ -17,7 +47,7 @@ const Index = () => {
         className="max-w-5xl mx-auto space-y-8"
       >
         <header className="text-center space-y-4">
-          <h1 className="text-4xl font-semibold tracking-tight">Birthday Buddy</h1>
+          <h1 className="text-4xl font-semibold tracking-tight">Welcome, {user.name}</h1>
           <p className="text-lg text-foreground/60">Never miss a special day</p>
         </header>
 
