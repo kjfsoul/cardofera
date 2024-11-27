@@ -19,7 +19,7 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/10">
-      <Card className="w-full max-w-md glass-card">
+      <Card className="w-full max-w-md glass-card animate-scale-in">
         <CardHeader>
           <CardTitle>Create Account</CardTitle>
           <CardDescription>Sign up to start managing birthday celebrations</CardDescription>

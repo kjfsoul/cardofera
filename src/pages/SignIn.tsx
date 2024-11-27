@@ -18,7 +18,7 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-background to-secondary/10">
-      <Card className="w-full max-w-md glass-card">
+      <Card className="w-full max-w-md glass-card animate-scale-in">
         <CardHeader>
           <CardTitle>Welcome Back</CardTitle>
           <CardDescription>Sign in to manage your birthday cards and gifts</CardDescription>

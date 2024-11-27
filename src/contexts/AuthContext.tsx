@@ -2,18 +2,20 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+interface GiftPreferences {
+  giftTypes: string[];
+  priceRange: {
+    min: number;
+    max: number;
+  };
+  interests: string[];
+}
+
 interface User {
   id: string;
   email: string;
   name?: string;
-  preferences?: {
-    giftTypes?: string[];
-    priceRange?: {
-      min: number;
-      max: number;
-    };
-    interests?: string[];
-  };
+  preferences?: GiftPreferences;
 }
 
 interface AuthContextType {
@@ -33,7 +35,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -48,11 +49,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         id: "1",
         email,
         name: "Test User",
+        preferences: {
+          giftTypes: ["Books", "Electronics"],
+          priceRange: { min: 20, max: 200 },
+          interests: ["Reading", "Technology"],
+        },
       };
       setUser(mockUser);
       localStorage.setItem("user", JSON.stringify(mockUser));
       toast.success("Successfully signed in!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       toast.error("Failed to sign in");
       throw error;
@@ -66,11 +72,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         id: "1",
         email,
         name,
+        preferences: {
+          giftTypes: [],
+          priceRange: { min: 0, max: 100 },
+          interests: [],
+        },
       };
       setUser(mockUser);
       localStorage.setItem("user", JSON.stringify(mockUser));
       toast.success("Successfully signed up!");
-      navigate("/dashboard");
+      navigate("/");
     } catch (error) {
       toast.error("Failed to sign up");
       throw error;
