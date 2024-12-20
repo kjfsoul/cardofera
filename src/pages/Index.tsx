@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Calendar, Gift, Mail, Plus, Sparkles } from "lucide-react";
+import { Calendar, Gift, Mail, Plus, Sparkles, CheckCircle2 } from "lucide-react";
 import GiftQuiz from "@/components/gift/GiftQuiz";
 import ProductShowcase from "@/components/gift/ProductShowcase";
 import CalendarIntegration from "@/components/CalendarIntegration";
@@ -14,7 +14,32 @@ import CardGenerator from "@/components/CardGenerator";
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showGiftQuiz, setShowGiftQuiz] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("cards");
+
+  const sections = {
+    cards: <CardGenerator />,
+    gifts: (
+      <div className="space-y-8">
+        <GiftQuiz />
+        <ProductShowcase />
+      </div>
+    ),
+    calendar: <CalendarIntegration />,
+    recipients: <GiftRecipients />,
+  };
+
+  const progressItems = [
+    { id: "quiz", label: "Gift Quiz", status: "in-progress" },
+    { id: "budget", label: "Budget Filter", status: "pending" },
+    { id: "showcase", label: "Product Showcase", status: "in-progress" },
+    { id: "favorites", label: "Save Favorites", status: "in-progress" },
+    { id: "tracking", label: "Gift Tracking", status: "pending" },
+    { id: "wizard", label: "Card Wizard", status: "pending" },
+    { id: "delivery", label: "Delivery System", status: "pending" },
+    { id: "payments", label: "Payment Processing", status: "pending" },
+    { id: "storage", label: "Cloud Storage", status: "pending" },
+    { id: "api", label: "Gift API", status: "pending" },
+  ];
 
   if (!user) {
     return (
@@ -114,31 +139,69 @@ const Index = () => {
             Welcome, {user.name}
           </h1>
           <p className="text-lg text-foreground/60">Create something special today</p>
-          <div className="flex justify-center gap-4">
+          
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
             <Button
-              onClick={() => setShowGiftQuiz(true)}
+              variant={activeSection === "cards" ? "default" : "outline"}
+              onClick={() => setActiveSection("cards")}
+              className="flex items-center gap-2"
+            >
+              <Mail className="h-4 w-4" />
+              Birthday Cards
+            </Button>
+            <Button
+              variant={activeSection === "gifts" ? "default" : "outline"}
+              onClick={() => setActiveSection("gifts")}
               className="flex items-center gap-2"
             >
               <Gift className="h-4 w-4" />
-              Find Perfect Gift
+              Gift Finder
+            </Button>
+            <Button
+              variant={activeSection === "calendar" ? "default" : "outline"}
+              onClick={() => setActiveSection("calendar")}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="h-4 w-4" />
+              Calendar
+            </Button>
+            <Button
+              variant={activeSection === "recipients" ? "default" : "outline"}
+              onClick={() => setActiveSection("recipients")}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Recipients
             </Button>
           </div>
         </header>
 
-        {showGiftQuiz ? (
-          <div className="space-y-8">
-            <GiftQuiz />
-            <ProductShowcase />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            {sections[activeSection as keyof typeof sections]}
           </div>
-        ) : (
-          <>
-            <CardGenerator />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <CalendarIntegration />
-              <GiftRecipients />
-            </div>
-          </>
-        )}
+          
+          <div className="space-y-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Development Progress</h3>
+              <div className="space-y-3">
+                {progressItems.map((item) => (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <CheckCircle2 
+                      className={cn(
+                        "h-4 w-4",
+                        item.status === "completed" ? "text-green-500" :
+                        item.status === "in-progress" ? "text-yellow-500" :
+                        "text-gray-300"
+                      )}
+                    />
+                    <span className="text-sm">{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </div>
       </motion.div>
     </div>
   );
