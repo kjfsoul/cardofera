@@ -30,6 +30,19 @@ const Index = () => {
     recipients: <GiftRecipients />,
   };
 
+  const progressItems = [
+    { id: "quiz", label: "Gift Quiz", status: "in-progress" as const },
+    { id: "budget", label: "Budget Filter", status: "pending" as const },
+    { id: "showcase", label: "Product Showcase", status: "in-progress" as const },
+    { id: "favorites", label: "Save Favorites", status: "in-progress" as const },
+    { id: "tracking", label: "Gift Tracking", status: "pending" as const },
+    { id: "wizard", label: "Card Wizard", status: "pending" as const },
+    { id: "delivery", label: "Delivery System", status: "pending" as const },
+    { id: "payments", label: "Payment Processing", status: "pending" as const },
+    { id: "storage", label: "Cloud Storage", status: "pending" as const },
+    { id: "api", label: "Gift API", status: "pending" as const },
+  ];
+
   const handleFeatureClick = (section: string) => {
     if (!user) {
       navigate("/signup");
