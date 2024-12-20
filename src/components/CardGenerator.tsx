@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, Wand2, Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils"; // Added missing import
 
 const CardGenerator = () => {
   const [recipientName, setRecipientName] = useState("");
