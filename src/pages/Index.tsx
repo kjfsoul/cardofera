@@ -12,6 +12,7 @@ import GiftRecipients from "@/components/GiftRecipients";
 import CardGenerator from "@/components/CardGenerator";
 import NavigationButtons from "@/components/NavigationButtons";
 import ProgressTracker from "@/components/ProgressTracker";
+import BirthdayList from "@/components/contacts/BirthdayList";
 
 const Index = () => {
   const { user } = useAuth();
@@ -188,3 +189,4 @@ const Index = () => {
 };
 
 export default Index;
+
