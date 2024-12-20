@@ -1,149 +1,156 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ImagePlus, Wand2, Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils"; // Added missing import
+import { cn } from "@/lib/utils";
 
 const CardGenerator = () => {
-  const [recipientName, setRecipientName] = useState("");
-  const [message, setMessage] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [cardData, setCardData] = useState({
+    recipientName: "",
+    occasion: "birthday",
+    message: "",
+    style: "modern",
+  });
   const [generatedCard, setGeneratedCard] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const templates = [
-    { id: "1", name: "Birthday Celebration", preview: "/placeholder.svg" },
-    { id: "2", name: "Festive Wishes", preview: "/placeholder.svg" },
-    { id: "3", name: "Joyful Moments", preview: "/placeholder.svg" },
-  ];
+  const handleGenerate = async () => {
+    if (!cardData.recipientName || !cardData.message) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
 
-  const handleGenerateCard = async () => {
+    setIsGenerating(true);
     try {
-      // Mock AI generation - replace with actual AI integration
-      toast.promise(
-        new Promise((resolve) => setTimeout(resolve, 2000)),
-        {
-          loading: "Generating your card...",
-          success: "Card generated successfully!",
-          error: "Failed to generate card",
-        }
-      );
-      setGeneratedCard("/placeholder.svg");
+      // TODO: Replace with actual AI card generation
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setGeneratedCard("/placeholder-card.png");
+      toast.success("Card generated successfully!");
     } catch (error) {
       toast.error("Failed to generate card");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        toast.success("Image uploaded successfully!");
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleDownload = () => {
+    // TODO: Implement actual download functionality
+    toast.success("Download started!");
+  };
+
+  const handleShare = () => {
+    // TODO: Implement sharing functionality
+    toast.success("Sharing options coming soon!");
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-    >
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle>Create Your Card</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Input
-              placeholder="Recipient's name"
-              value={recipientName}
-              onChange={(e) => setRecipientName(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Textarea
-              placeholder="Write your message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="min-h-[100px]"
-            />
-          </div>
-          <div className="flex flex-wrap gap-4">
-            {templates.map((template) => (
-              <div
-                key={template.id}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="recipientName">Recipient's Name</Label>
+          <Input
+            id="recipientName"
+            value={cardData.recipientName}
+            onChange={(e) =>
+              setCardData({ ...cardData, recipientName: e.target.value })
+            }
+            placeholder="Enter recipient's name"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="occasion">Occasion</Label>
+          <select
+            id="occasion"
+            value={cardData.occasion}
+            onChange={(e) =>
+              setCardData({ ...cardData, occasion: e.target.value })
+            }
+            className="w-full rounded-md border border-input bg-background px-3 py-2"
+          >
+            <option value="birthday">Birthday</option>
+            <option value="anniversary">Anniversary</option>
+            <option value="congratulations">Congratulations</option>
+            <option value="thank-you">Thank You</option>
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="message">Message</Label>
+          <Textarea
+            id="message"
+            value={cardData.message}
+            onChange={(e) => setCardData({ ...cardData, message: e.target.value })}
+            placeholder="Enter your message"
+            className="min-h-[100px]"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Card Style</Label>
+          <div className="grid grid-cols-2 gap-4">
+            {["modern", "classic", "playful", "elegant"].map((style) => (
+              <button
+                key={style}
+                onClick={() => setCardData({ ...cardData, style })}
                 className={cn(
-                  "relative w-24 h-24 rounded-lg cursor-pointer overflow-hidden border-2 transition-all",
-                  selectedTemplate === template.id
-                    ? "border-primary scale-105"
-                    : "border-transparent hover:border-primary/50"
+                  "p-4 rounded-lg border text-center capitalize transition-colors",
+                  cardData.style === style
+                    ? "border-primary bg-primary/10"
+                    : "border-input hover:bg-accent hover:text-accent-foreground"
                 )}
-                onClick={() => setSelectedTemplate(template.id)}
               >
-                <img
-                  src={template.preview}
-                  alt={template.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+                {style}
+              </button>
             ))}
           </div>
-          <div className="flex flex-wrap gap-4">
-            <Button onClick={handleGenerateCard}>
-              <Wand2 className="mr-2 h-4 w-4" /> Generate with AI
-            </Button>
-            <Button variant="outline" className="relative">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-              <ImagePlus className="mr-2 h-4 w-4" /> Upload Image
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card className="glass-card">
-        <CardHeader>
-          <CardTitle>Preview</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <Button
+          onClick={handleGenerate}
+          className="w-full"
+          disabled={isGenerating}
+        >
+          <Wand2 className="mr-2 h-4 w-4" />
+          {isGenerating ? "Generating..." : "Generate Card"}
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="aspect-[4/3] rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/50">
           {generatedCard ? (
-            <>
-              <div className="aspect-[4/3] rounded-lg overflow-hidden">
-                <img
-                  src={generatedCard}
-                  alt="Generated card"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex gap-4">
-                <Button className="flex-1">
-                  <Download className="mr-2 h-4 w-4" /> Download
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  <Share2 className="mr-2 h-4 w-4" /> Share
-                </Button>
-              </div>
-            </>
+            <img
+              src={generatedCard}
+              alt="Generated card"
+              className="w-full h-full object-cover rounded-lg"
+            />
           ) : (
-            <div className="aspect-[4/3] rounded-lg bg-accent/20 flex items-center justify-center">
-              <p className="text-foreground/60">
-                Your card preview will appear here
+            <div className="text-center p-4">
+              <ImagePlus className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Your generated card will appear here
               </p>
             </div>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+
+        {generatedCard && (
+          <div className="flex gap-4">
+            <Button onClick={handleDownload} className="flex-1">
+              <Download className="mr-2 h-4 w-4" />
+              Download
+            </Button>
+            <Button onClick={handleShare} variant="outline" className="flex-1">
+              <Share2 className="mr-2 h-4 w-4" />
+              Share
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
