@@ -5,14 +5,16 @@ import { toast } from "sonner";
 interface CardPreview3DProps {
   imageUrl?: string;
   text?: string;
+  enableSound?: boolean;
 }
 
-const CardPreview3D = ({ imageUrl, text }: CardPreview3DProps) => {
+const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DProps) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cardRef = useRef<THREE.Mesh | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -54,11 +56,18 @@ const CardPreview3D = ({ imageUrl, text }: CardPreview3DProps) => {
     scene.add(card);
     cardRef.current = card;
 
+    // Audio setup
+    if (enableSound) {
+      audioRef.current = new Audio("/bark.mp3"); // Add a sample sound file
+    }
+
     // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
       if (cardRef.current) {
         cardRef.current.rotation.y = Math.sin(Date.now() * 0.001) * 0.2;
+        // Add a slight wobble effect
+        cardRef.current.rotation.x = Math.sin(Date.now() * 0.002) * 0.1;
       }
       renderer.render(scene, camera);
     };
@@ -73,13 +82,26 @@ const CardPreview3D = ({ imageUrl, text }: CardPreview3DProps) => {
     };
     window.addEventListener("resize", handleResize);
 
+    // Play sound on interaction if enabled
+    const handleInteraction = () => {
+      if (enableSound && audioRef.current) {
+        audioRef.current.play().catch(() => {
+          toast.error("Unable to play sound. Please check your browser settings.");
+        });
+      }
+    };
+    mountRef.current.addEventListener("click", handleInteraction);
+
     // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
-      mountRef.current?.removeChild(renderer.domElement);
+      if (mountRef.current) {
+        mountRef.current.removeEventListener("click", handleInteraction);
+        mountRef.current.removeChild(renderer.domElement);
+      }
       scene.clear();
     };
-  }, []);
+  }, [enableSound]);
 
   // Update texture when image changes
   useEffect(() => {

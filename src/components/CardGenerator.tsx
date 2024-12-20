@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Wand2, Download, Share2, Volume2, VolumeX } from "lucide-react";
+import { ImagePlus, Wand2, Download, Share2, Volume2, VolumeX, Upload, Gift } from "lucide-react";
 import { toast } from "sonner";
 import CardPreview3D from "./card/CardPreview3D";
 import CardImageSearch from "./card/CardImageSearch";
 import CardForm from "./card/CardForm";
 import CardStyleSelector from "./card/CardStyleSelector";
 import DeliverySelector from "./card/DeliverySelector";
+
+const DEFAULT_PREVIEW_IMAGE = "/placeholder.svg";
+const SAMPLE_CARD_IMAGES = [
+  "/placeholder.svg",
+  // Add more sample images here
+];
 
 const CardGenerator = () => {
   const [cardData, setCardData] = useState({
@@ -21,6 +27,19 @@ const CardGenerator = () => {
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [isPremium] = useState(false);
+  const [showSponsoredGame, setShowSponsoredGame] = useState(false);
+  const [currentSampleImage, setCurrentSampleImage] = useState(0);
+  const [imagePrompt, setImagePrompt] = useState("");
+
+  // Rotate sample images
+  useEffect(() => {
+    if (!selectedImage) {
+      const interval = setInterval(() => {
+        setCurrentSampleImage((prev) => (prev + 1) % SAMPLE_CARD_IMAGES.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedImage]);
 
   const handleGenerate = async () => {
     if (!cardData.recipientName || !cardData.message) {
@@ -49,6 +68,7 @@ const CardGenerator = () => {
     });
     setSelectedImage(null);
     setShowImageSearch(false);
+    setImagePrompt("");
     toast.success("All fields have been reset");
   };
 
@@ -85,9 +105,46 @@ const CardGenerator = () => {
     toast.success("Image selected successfully!");
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+        toast.success("Image uploaded successfully!");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImagePrompt = async () => {
+    if (!imagePrompt.trim()) {
+      toast.error("Please enter an image description");
+      return;
+    }
+    setIsGenerating(true);
+    try {
+      // Simulate AI image generation
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setSelectedImage(DEFAULT_PREVIEW_IMAGE);
+      toast.success("Image generated from prompt!");
+    } catch (error) {
+      toast.error("Failed to generate image");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const toggleSound = () => {
     setIsSoundEnabled(!isSoundEnabled);
     toast.success(isSoundEnabled ? "Sound disabled" : "Sound enabled");
+  };
+
+  const toggleSponsoredGame = () => {
+    setShowSponsoredGame(!showSponsoredGame);
+    if (!showSponsoredGame) {
+      toast.success("Play games to win discounts on premium features!");
+    }
   };
 
   return (
@@ -112,23 +169,48 @@ const CardGenerator = () => {
           isPremium={isPremium}
         />
 
-        <div className="flex gap-4">
-          <Button
-            variant="outline"
-            onClick={() => setShowImageSearch(!showImageSearch)}
-            className="flex-1"
-          >
-            <ImagePlus className="mr-2 h-4 w-4" />
-            {showImageSearch ? "Hide Image Search" : "Search Images"}
-          </Button>
-          <Button variant="outline" onClick={toggleSound} className="flex-1">
-            {isSoundEnabled ? (
-              <Volume2 className="mr-2 h-4 w-4" />
-            ) : (
-              <VolumeX className="mr-2 h-4 w-4" />
-            )}
-            {isSoundEnabled ? "Disable Sound" : "Enable Sound"}
-          </Button>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowImageSearch(!showImageSearch)}
+              className="flex-1"
+            >
+              <ImagePlus className="mr-2 h-4 w-4" />
+              {showImageSearch ? "Hide Image Search" : "Search Images"}
+            </Button>
+            <Button variant="outline" onClick={toggleSound} className="flex-1">
+              {isSoundEnabled ? (
+                <Volume2 className="mr-2 h-4 w-4" />
+              ) : (
+                <VolumeX className="mr-2 h-4 w-4" />
+              )}
+              {isSoundEnabled ? "Disable Sound" : "Enable Sound"}
+            </Button>
+          </div>
+
+          <div className="flex gap-4">
+            <Button variant="outline" className="flex-1" asChild>
+              <label>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Image
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+              </label>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={toggleSponsoredGame}
+              className="flex-1"
+            >
+              <Gift className="mr-2 h-4 w-4" />
+              Win Prizes
+            </Button>
+          </div>
         </div>
 
         {showImageSearch && <CardImageSearch onImageSelect={handleImageSelect} />}
@@ -158,18 +240,11 @@ const CardGenerator = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        {selectedImage ? (
-          <CardPreview3D imageUrl={selectedImage} text={cardData.message} />
-        ) : (
-          <div className="aspect-[4/3] rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/50">
-            <div className="text-center p-4">
-              <ImagePlus className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Search and select an image to preview your card in 3D
-              </p>
-            </div>
-          </div>
-        )}
+        <CardPreview3D 
+          imageUrl={selectedImage || SAMPLE_CARD_IMAGES[currentSampleImage]} 
+          text={cardData.message}
+          enableSound={isSoundEnabled}
+        />
 
         <div className="flex gap-4">
           <Button
