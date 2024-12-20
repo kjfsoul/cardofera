@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ImagePlus, Wand2, Download, Share2, Volume2, VolumeX, Upload, Gift } from "lucide-react";
+import { ImagePlus, Wand2, Download, Share2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import CardPreview3D from "./card/CardPreview3D";
 import CardImageSearch from "./card/CardImageSearch";
 import CardForm from "./card/CardForm";
 import CardStyleSelector from "./card/CardStyleSelector";
 import DeliverySelector from "./card/DeliverySelector";
+import CardSoundToggle from "./card/CardSoundToggle";
+import CardImagePrompt from "./card/CardImagePrompt";
+import SponsoredGame from "./card/SponsoredGame";
 
 const DEFAULT_PREVIEW_IMAGE = "/placeholder.svg";
 const SAMPLE_CARD_IMAGES = [
@@ -29,7 +32,6 @@ const CardGenerator = () => {
   const [isPremium] = useState(false);
   const [showSponsoredGame, setShowSponsoredGame] = useState(false);
   const [currentSampleImage, setCurrentSampleImage] = useState(0);
-  const [imagePrompt, setImagePrompt] = useState("");
 
   // Rotate sample images
   useEffect(() => {
@@ -58,53 +60,6 @@ const CardGenerator = () => {
     }
   };
 
-  const handleReset = () => {
-    setCardData({
-      recipientName: "",
-      occasion: "birthday",
-      message: "",
-      style: "modern",
-      deliveryMethod: "email",
-    });
-    setSelectedImage(null);
-    setShowImageSearch(false);
-    setImagePrompt("");
-    toast.success("All fields have been reset");
-  };
-
-  const handleAutoSuggest = async () => {
-    if (!cardData.recipientName) {
-      toast.error("Please enter recipient's name first");
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const suggestedMessage = `Dear ${cardData.recipientName},\n\nWishing you a wonderful ${cardData.occasion} filled with joy and laughter! May this special day bring you everything you desire.\n\nBest wishes`;
-      setCardData({ ...cardData, message: suggestedMessage });
-      toast.success("Message suggested based on recipient preferences");
-    } catch (error) {
-      toast.error("Failed to generate suggestion");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleDeliveryMethod = (method: string) => {
-    if (!isPremium && method !== "email") {
-      toast.error("Premium subscription required for additional delivery methods");
-      return;
-    }
-    setCardData({ ...cardData, deliveryMethod: method });
-    toast.success(`Delivery method set to ${method}`);
-  };
-
-  const handleImageSelect = (url: string) => {
-    setSelectedImage(url);
-    setShowImageSearch(false);
-    toast.success("Image selected successfully!");
-  };
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -117,34 +72,9 @@ const CardGenerator = () => {
     }
   };
 
-  const handleImagePrompt = async () => {
-    if (!imagePrompt.trim()) {
-      toast.error("Please enter an image description");
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      // Simulate AI image generation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setSelectedImage(DEFAULT_PREVIEW_IMAGE);
-      toast.success("Image generated from prompt!");
-    } catch (error) {
-      toast.error("Failed to generate image");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const toggleSound = () => {
-    setIsSoundEnabled(!isSoundEnabled);
-    toast.success(isSoundEnabled ? "Sound disabled" : "Sound enabled");
-  };
-
-  const toggleSponsoredGame = () => {
-    setShowSponsoredGame(!showSponsoredGame);
-    if (!showSponsoredGame) {
-      toast.success("Play games to win discounts on premium features!");
-    }
+  const handleGameWin = () => {
+    setShowSponsoredGame(false);
+    toast.success("Your discount has been applied!");
   };
 
   return (
@@ -153,8 +83,7 @@ const CardGenerator = () => {
         <CardForm
           cardData={cardData}
           setCardData={setCardData}
-          handleAutoSuggest={handleAutoSuggest}
-          handleReset={handleReset}
+          handleGenerate={handleGenerate}
           isGenerating={isGenerating}
         />
 
@@ -165,7 +94,7 @@ const CardGenerator = () => {
 
         <DeliverySelector
           selectedMethod={cardData.deliveryMethod}
-          onMethodSelect={handleDeliveryMethod}
+          onMethodSelect={(method) => setCardData({ ...cardData, deliveryMethod: method })}
           isPremium={isPremium}
         />
 
@@ -179,14 +108,10 @@ const CardGenerator = () => {
               <ImagePlus className="mr-2 h-4 w-4" />
               {showImageSearch ? "Hide Image Search" : "Search Images"}
             </Button>
-            <Button variant="outline" onClick={toggleSound} className="flex-1">
-              {isSoundEnabled ? (
-                <Volume2 className="mr-2 h-4 w-4" />
-              ) : (
-                <VolumeX className="mr-2 h-4 w-4" />
-              )}
-              {isSoundEnabled ? "Disable Sound" : "Enable Sound"}
-            </Button>
+            <CardSoundToggle
+              isSoundEnabled={isSoundEnabled}
+              onToggle={() => setIsSoundEnabled(!isSoundEnabled)}
+            />
           </div>
 
           <div className="flex gap-4">
@@ -204,16 +129,24 @@ const CardGenerator = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={toggleSponsoredGame}
+              onClick={() => setShowSponsoredGame(!showSponsoredGame)}
               className="flex-1"
             >
-              <Gift className="mr-2 h-4 w-4" />
-              Win Prizes
+              Play & Win
             </Button>
           </div>
         </div>
 
-        {showImageSearch && <CardImageSearch onImageSelect={handleImageSelect} />}
+        {showImageSearch && (
+          <CardImageSearch onImageSelect={(url) => setSelectedImage(url)} />
+        )}
+
+        {showSponsoredGame && <SponsoredGame onWin={handleGameWin} />}
+
+        <CardImagePrompt
+          onImageGenerate={setSelectedImage}
+          isGenerating={isGenerating}
+        />
 
         <Button
           onClick={handleGenerate}
@@ -240,8 +173,8 @@ const CardGenerator = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        <CardPreview3D 
-          imageUrl={selectedImage || SAMPLE_CARD_IMAGES[currentSampleImage]} 
+        <CardPreview3D
+          imageUrl={selectedImage || SAMPLE_CARD_IMAGES[currentSampleImage]}
           text={cardData.message}
           enableSound={isSoundEnabled}
         />
