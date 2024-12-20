@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { ImagePlus, Wand2, Download, Share2, Volume2, VolumeX, RotateCcw, Send, Mail, Phone, MessageSquare } from "lucide-react";
+import { ImagePlus, Wand2, Download, Share2, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import CardPreview3D from "./card/CardPreview3D";
 import CardImageSearch from "./card/CardImageSearch";
+import CardForm from "./card/CardForm";
+import CardStyleSelector from "./card/CardStyleSelector";
+import DeliverySelector from "./card/DeliverySelector";
 
 const CardGenerator = () => {
   const [cardData, setCardData] = useState({
@@ -21,7 +20,7 @@ const CardGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [showImageSearch, setShowImageSearch] = useState(false);
-  const [isPremium] = useState(false); // This would be connected to your auth/subscription system
+  const [isPremium] = useState(false);
 
   const handleGenerate = async () => {
     if (!cardData.recipientName || !cardData.message) {
@@ -31,7 +30,6 @@ const CardGenerator = () => {
 
     setIsGenerating(true);
     try {
-      // TODO: Replace with actual AI card generation
       await new Promise((resolve) => setTimeout(resolve, 2000));
       toast.success("Card generated successfully!");
     } catch (error) {
@@ -62,8 +60,7 @@ const CardGenerator = () => {
 
     setIsGenerating(true);
     try {
-      // TODO: Replace with actual AI message suggestion
-      const suggestedMessage = `Dear ${cardData.recipientName},\n\nWishing you a wonderful birthday filled with joy and laughter! May this special day bring you everything you desire.\n\nBest wishes`;
+      const suggestedMessage = `Dear ${cardData.recipientName},\n\nWishing you a wonderful ${cardData.occasion} filled with joy and laughter! May this special day bring you everything you desire.\n\nBest wishes`;
       setCardData({ ...cardData, message: suggestedMessage });
       toast.success("Message suggested based on recipient preferences");
     } catch (error) {
@@ -96,113 +93,24 @@ const CardGenerator = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <Label htmlFor="recipientName">Recipient's Name</Label>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleReset}
-            className="text-muted-foreground"
-          >
-            <RotateCcw className="h-4 w-4 mr-2" />
-            Reset All
-          </Button>
-        </div>
-
-        <Input
-          id="recipientName"
-          value={cardData.recipientName}
-          onChange={(e) =>
-            setCardData({ ...cardData, recipientName: e.target.value })
-          }
-          placeholder="Enter recipient's name"
+        <CardForm
+          cardData={cardData}
+          setCardData={setCardData}
+          handleAutoSuggest={handleAutoSuggest}
+          handleReset={handleReset}
+          isGenerating={isGenerating}
         />
 
-        <div className="space-y-2">
-          <Label htmlFor="occasion">Occasion</Label>
-          <select
-            id="occasion"
-            value={cardData.occasion}
-            onChange={(e) =>
-              setCardData({ ...cardData, occasion: e.target.value })
-            }
-            className="w-full rounded-md border border-input bg-background px-3 py-2"
-          >
-            <option value="birthday">Birthday</option>
-            <option value="anniversary">Anniversary</option>
-            <option value="congratulations">Congratulations</option>
-            <option value="thank-you">Thank You</option>
-          </select>
-        </div>
+        <CardStyleSelector
+          selectedStyle={cardData.style}
+          onStyleSelect={(style) => setCardData({ ...cardData, style })}
+        />
 
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="message">Message</Label>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleAutoSuggest}
-              className="text-primary"
-            >
-              <Wand2 className="h-4 w-4 mr-2" />
-              Auto-Suggest
-            </Button>
-          </div>
-          <Textarea
-            id="message"
-            value={cardData.message}
-            onChange={(e) => setCardData({ ...cardData, message: e.target.value })}
-            placeholder="Enter your message or click Auto-Suggest"
-            className="min-h-[100px]"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Card Style</Label>
-          <div className="grid grid-cols-2 gap-4">
-            {["modern", "classic", "playful", "elegant"].map((style) => (
-              <button
-                key={style}
-                onClick={() => setCardData({ ...cardData, style })}
-                className={cn(
-                  "p-4 rounded-lg border text-center capitalize transition-colors",
-                  cardData.style === style
-                    ? "border-primary bg-primary/10"
-                    : "border-input hover:bg-accent hover:text-accent-foreground"
-                )}
-              >
-                {style}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Delivery Method</Label>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { id: "email", icon: Mail, label: "Email" },
-              { id: "text", icon: MessageSquare, label: "Text", premium: true },
-              { id: "print", icon: Send, label: "Mail", premium: true },
-              { id: "call", icon: Phone, label: "Call", premium: true },
-            ].map(({ id, icon: Icon, label, premium }) => (
-              <button
-                key={id}
-                onClick={() => handleDeliveryMethod(id)}
-                className={cn(
-                  "p-4 rounded-lg border text-center capitalize transition-colors flex items-center justify-center gap-2",
-                  cardData.deliveryMethod === id
-                    ? "border-primary bg-primary/10"
-                    : "border-input hover:bg-accent hover:text-accent-foreground",
-                  premium && !isPremium && "opacity-50 cursor-not-allowed"
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <DeliverySelector
+          selectedMethod={cardData.deliveryMethod}
+          onMethodSelect={handleDeliveryMethod}
+          isPremium={isPremium}
+        />
 
         <div className="flex gap-4">
           <Button

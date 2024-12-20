@@ -31,13 +31,13 @@ const Index = () => {
   };
 
   const progressItems = [
-    { id: "quiz", label: "Gift Quiz", status: "in-progress" as const },
-    { id: "budget", label: "Budget Filter", status: "pending" as const },
-    { id: "showcase", label: "Product Showcase", status: "in-progress" as const },
+    { id: "quiz", label: "Gift Quiz", status: "completed" as const },
+    { id: "budget", label: "Budget Filter", status: "in-progress" as const },
+    { id: "showcase", label: "Product Showcase", status: "completed" as const },
     { id: "favorites", label: "Save Favorites", status: "in-progress" as const },
     { id: "tracking", label: "Gift Tracking", status: "pending" as const },
-    { id: "wizard", label: "Card Wizard", status: "pending" as const },
-    { id: "delivery", label: "Delivery System", status: "pending" as const },
+    { id: "wizard", label: "Card Wizard", status: "in-progress" as const },
+    { id: "delivery", label: "Delivery System", status: "in-progress" as const },
     { id: "payments", label: "Payment Processing", status: "pending" as const },
     { id: "storage", label: "Cloud Storage", status: "pending" as const },
     { id: "api", label: "Gift API", status: "pending" as const },
@@ -172,12 +172,13 @@ const Index = () => {
           />
         </header>
 
-        <div id="app-content" className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             {sections[activeSection as keyof typeof sections]}
           </div>
           
           <div className="space-y-6">
+            <BirthdayList />
             <ProgressTracker items={progressItems} />
           </div>
         </div>
