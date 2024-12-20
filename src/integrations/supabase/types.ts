@@ -9,7 +9,250 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      birthday_reminders: {
+        Row: {
+          birth_date: string
+          celebrant_name: string
+          created_at: string
+          id: string
+          reminder_days: number[] | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          birth_date: string
+          celebrant_name: string
+          created_at?: string
+          id?: string
+          reminder_days?: number[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          birth_date?: string
+          celebrant_name?: string
+          created_at?: string
+          id?: string
+          reminder_days?: number[] | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "birthday_reminders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gift_cards: {
+        Row: {
+          created_at: string
+          creator_id: string | null
+          delivery_method: string
+          id: string
+          image_url: string | null
+          message: string | null
+          occasion: string
+          recipient_name: string
+          scheduled_date: string | null
+          status: string | null
+          style: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string | null
+          delivery_method: string
+          id?: string
+          image_url?: string | null
+          message?: string | null
+          occasion: string
+          recipient_name: string
+          scheduled_date?: string | null
+          status?: string | null
+          style: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string | null
+          delivery_method?: string
+          id?: string
+          image_url?: string | null
+          message?: string | null
+          occasion?: string
+          recipient_name?: string
+          scheduled_date?: string | null
+          status?: string | null
+          style?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_cards_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email_enabled: boolean | null
+          id: string
+          push_enabled: boolean | null
+          sms_enabled: boolean | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean | null
+          id?: string
+          push_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean | null
+          id?: string
+          push_enabled?: boolean | null
+          sms_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          status: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_type: string
+          status: string
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_period_end: string
+          current_period_start: string
+          id?: string
+          plan_type: string
+          status: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_type?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

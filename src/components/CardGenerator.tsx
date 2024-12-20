@@ -83,7 +83,6 @@ const CardGenerator = () => {
         <CardForm
           cardData={cardData}
           setCardData={setCardData}
-          handleGenerate={handleGenerate}
           isGenerating={isGenerating}
         />
 
