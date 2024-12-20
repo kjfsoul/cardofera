@@ -14,9 +14,10 @@ interface CardFormProps {
   };
   setCardData: (data: any) => void;
   isGenerating: boolean;
+  handleGenerate: () => Promise<void>;
 }
 
-const CardForm = ({ cardData, setCardData, isGenerating }: CardFormProps) => {
+const CardForm = ({ cardData, setCardData, isGenerating, handleGenerate }: CardFormProps) => {
   const occasions = [
     "birthday",
     "anniversary",

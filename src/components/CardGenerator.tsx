@@ -84,6 +84,7 @@ const CardGenerator = () => {
           cardData={cardData}
           setCardData={setCardData}
           isGenerating={isGenerating}
+          handleGenerate={handleGenerate}
         />
 
         <CardStyleSelector
