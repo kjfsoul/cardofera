@@ -3,13 +3,14 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Calendar, Gift, Mail, Plus, Sparkles, CheckCircle2 } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import GiftQuiz from "@/components/gift/GiftQuiz";
 import ProductShowcase from "@/components/gift/ProductShowcase";
 import CalendarIntegration from "@/components/CalendarIntegration";
 import GiftRecipients from "@/components/GiftRecipients";
 import CardGenerator from "@/components/CardGenerator";
+import NavigationButtons from "@/components/NavigationButtons";
+import ProgressTracker from "@/components/ProgressTracker";
 
 const Index = () => {
   const { user } = useAuth();
@@ -29,16 +30,16 @@ const Index = () => {
   };
 
   const progressItems = [
-    { id: "quiz", label: "Gift Quiz", status: "in-progress" },
-    { id: "budget", label: "Budget Filter", status: "pending" },
-    { id: "showcase", label: "Product Showcase", status: "in-progress" },
-    { id: "favorites", label: "Save Favorites", status: "in-progress" },
-    { id: "tracking", label: "Gift Tracking", status: "pending" },
-    { id: "wizard", label: "Card Wizard", status: "pending" },
-    { id: "delivery", label: "Delivery System", status: "pending" },
-    { id: "payments", label: "Payment Processing", status: "pending" },
-    { id: "storage", label: "Cloud Storage", status: "pending" },
-    { id: "api", label: "Gift API", status: "pending" },
+    { id: "quiz", label: "Gift Quiz", status: "in-progress" as const },
+    { id: "budget", label: "Budget Filter", status: "pending" as const },
+    { id: "showcase", label: "Product Showcase", status: "in-progress" as const },
+    { id: "favorites", label: "Save Favorites", status: "in-progress" as const },
+    { id: "tracking", label: "Gift Tracking", status: "pending" as const },
+    { id: "wizard", label: "Card Wizard", status: "pending" as const },
+    { id: "delivery", label: "Delivery System", status: "pending" as const },
+    { id: "payments", label: "Payment Processing", status: "pending" as const },
+    { id: "storage", label: "Cloud Storage", status: "pending" as const },
+    { id: "api", label: "Gift API", status: "pending" as const },
   ];
 
   if (!user) {
@@ -139,41 +140,10 @@ const Index = () => {
             Welcome, {user.name}
           </h1>
           <p className="text-lg text-foreground/60">Create something special today</p>
-          
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <Button
-              variant={activeSection === "cards" ? "default" : "outline"}
-              onClick={() => setActiveSection("cards")}
-              className="flex items-center gap-2"
-            >
-              <Mail className="h-4 w-4" />
-              Birthday Cards
-            </Button>
-            <Button
-              variant={activeSection === "gifts" ? "default" : "outline"}
-              onClick={() => setActiveSection("gifts")}
-              className="flex items-center gap-2"
-            >
-              <Gift className="h-4 w-4" />
-              Gift Finder
-            </Button>
-            <Button
-              variant={activeSection === "calendar" ? "default" : "outline"}
-              onClick={() => setActiveSection("calendar")}
-              className="flex items-center gap-2"
-            >
-              <Calendar className="h-4 w-4" />
-              Calendar
-            </Button>
-            <Button
-              variant={activeSection === "recipients" ? "default" : "outline"}
-              onClick={() => setActiveSection("recipients")}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Recipients
-            </Button>
-          </div>
+          <NavigationButtons 
+            activeSection={activeSection} 
+            onSectionChange={setActiveSection} 
+          />
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -182,24 +152,7 @@ const Index = () => {
           </div>
           
           <div className="space-y-6">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Development Progress</h3>
-              <div className="space-y-3">
-                {progressItems.map((item) => (
-                  <div key={item.id} className="flex items-center gap-2">
-                    <CheckCircle2 
-                      className={cn(
-                        "h-4 w-4",
-                        item.status === "completed" ? "text-green-500" :
-                        item.status === "in-progress" ? "text-yellow-500" :
-                        "text-gray-300"
-                      )}
-                    />
-                    <span className="text-sm">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            <ProgressTracker items={progressItems} />
           </div>
         </div>
       </motion.div>
