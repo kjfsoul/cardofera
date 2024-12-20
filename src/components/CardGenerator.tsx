@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ImagePlus, Wand2, Download, Share2 } from "lucide-react";
+import { ImagePlus, Wand2, Download, Share2, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import CardPreview3D from "./card/CardPreview3D";
+import CardImageSearch from "./card/CardImageSearch";
 
 const CardGenerator = () => {
   const [cardData, setCardData] = useState({
@@ -14,8 +16,10 @@ const CardGenerator = () => {
     message: "",
     style: "modern",
   });
-  const [generatedCard, setGeneratedCard] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(false);
+  const [showImageSearch, setShowImageSearch] = useState(false);
 
   const handleGenerate = async () => {
     if (!cardData.recipientName || !cardData.message) {
@@ -27,7 +31,6 @@ const CardGenerator = () => {
     try {
       // TODO: Replace with actual AI card generation
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      setGeneratedCard("/placeholder-card.png");
       toast.success("Card generated successfully!");
     } catch (error) {
       toast.error("Failed to generate card");
@@ -36,14 +39,15 @@ const CardGenerator = () => {
     }
   };
 
-  const handleDownload = () => {
-    // TODO: Implement actual download functionality
-    toast.success("Download started!");
+  const handleImageSelect = (url: string) => {
+    setSelectedImage(url);
+    setShowImageSearch(false);
+    toast.success("Image selected successfully!");
   };
 
-  const handleShare = () => {
-    // TODO: Implement sharing functionality
-    toast.success("Sharing options coming soon!");
+  const toggleSound = () => {
+    setIsSoundEnabled(!isSoundEnabled);
+    toast.success(isSoundEnabled ? "Sound disabled" : "Sound enabled");
   };
 
   return (
@@ -109,6 +113,33 @@ const CardGenerator = () => {
           </div>
         </div>
 
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowImageSearch(!showImageSearch)}
+            className="flex-1"
+          >
+            <ImagePlus className="mr-2 h-4 w-4" />
+            {showImageSearch ? "Hide Image Search" : "Search Images"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={toggleSound}
+            className="flex-1"
+          >
+            {isSoundEnabled ? (
+              <Volume2 className="mr-2 h-4 w-4" />
+            ) : (
+              <VolumeX className="mr-2 h-4 w-4" />
+            )}
+            {isSoundEnabled ? "Disable Sound" : "Enable Sound"}
+          </Button>
+        </div>
+
+        {showImageSearch && (
+          <CardImageSearch onImageSelect={handleImageSelect} />
+        )}
+
         <Button
           onClick={handleGenerate}
           className="w-full"
@@ -120,35 +151,29 @@ const CardGenerator = () => {
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="aspect-[4/3] rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/50">
-          {generatedCard ? (
-            <img
-              src={generatedCard}
-              alt="Generated card"
-              className="w-full h-full object-cover rounded-lg"
-            />
-          ) : (
+        {selectedImage ? (
+          <CardPreview3D imageUrl={selectedImage} text={cardData.message} />
+        ) : (
+          <div className="aspect-[4/3] rounded-lg border border-dashed border-border flex items-center justify-center bg-muted/50">
             <div className="text-center p-4">
               <ImagePlus className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                Your generated card will appear here
+                Search and select an image to preview your card in 3D
               </p>
             </div>
-          )}
-        </div>
-
-        {generatedCard && (
-          <div className="flex gap-4">
-            <Button onClick={handleDownload} className="flex-1">
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
-            <Button onClick={handleShare} variant="outline" className="flex-1">
-              <Share2 className="mr-2 h-4 w-4" />
-              Share
-            </Button>
           </div>
         )}
+
+        <div className="flex gap-4">
+          <Button onClick={() => toast.success("Download started!")} className="flex-1">
+            <Download className="mr-2 h-4 w-4" />
+            Download
+          </Button>
+          <Button onClick={() => toast.success("Sharing options coming soon!")} variant="outline" className="flex-1">
+            <Share2 className="mr-2 h-4 w-4" />
+            Share
+          </Button>
+        </div>
       </div>
     </div>
   );
