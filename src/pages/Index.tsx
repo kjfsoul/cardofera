@@ -30,18 +30,16 @@ const Index = () => {
     recipients: <GiftRecipients />,
   };
 
-  const progressItems = [
-    { id: "quiz", label: "Gift Quiz", status: "in-progress" as const },
-    { id: "budget", label: "Budget Filter", status: "pending" as const },
-    { id: "showcase", label: "Product Showcase", status: "in-progress" as const },
-    { id: "favorites", label: "Save Favorites", status: "in-progress" as const },
-    { id: "tracking", label: "Gift Tracking", status: "pending" as const },
-    { id: "wizard", label: "Card Wizard", status: "pending" as const },
-    { id: "delivery", label: "Delivery System", status: "pending" as const },
-    { id: "payments", label: "Payment Processing", status: "pending" as const },
-    { id: "storage", label: "Cloud Storage", status: "pending" as const },
-    { id: "api", label: "Gift API", status: "pending" as const },
-  ];
+  const handleFeatureClick = (section: string) => {
+    if (!user) {
+      navigate("/signup");
+    } else {
+      setActiveSection(section);
+      // Smooth scroll to content
+      const element = document.getElementById("app-content");
+      element?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   if (!user) {
     return (
@@ -103,20 +101,34 @@ const Index = () => {
                 {
                   title: "AI-Powered Cards",
                   description: "Create unique birthday cards with our AI technology",
-                  icon: Sparkles
+                  icon: Sparkles,
+                  section: "cards"
                 },
                 {
                   title: "Smart Gift Finder",
                   description: "Get personalized gift recommendations",
-                  icon: Gift
+                  icon: Gift,
+                  section: "gifts"
                 },
                 {
                   title: "Never Miss a Birthday",
                   description: "Sync with your calendar and get reminders",
-                  icon: Calendar
+                  icon: Calendar,
+                  section: "calendar"
                 }
               ].map((feature, index) => (
-                <Card key={index} className="p-6 glass-card hover:scale-105 transition-transform duration-300">
+                <Card 
+                  key={index} 
+                  className="p-6 glass-card hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  onClick={() => handleFeatureClick(feature.section)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleFeatureClick(feature.section);
+                    }
+                  }}
+                >
                   <feature.icon className="h-12 w-12 text-primary mb-4" />
                   <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                   <p className="text-foreground/60">{feature.description}</p>
@@ -147,7 +159,7 @@ const Index = () => {
           />
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div id="app-content" className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             {sections[activeSection as keyof typeof sections]}
           </div>
