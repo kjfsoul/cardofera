@@ -21,6 +21,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
 
     // Scene setup
     const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf5f5f5);
     sceneRef.current = scene;
 
     // Camera setup
@@ -33,41 +34,69 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
     camera.position.z = 5;
     cameraRef.current = camera;
 
-    // Renderer setup
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Renderer setup with antialiasing and physically correct lighting
+    const renderer = new THREE.WebGLRenderer({ 
+      antialias: true,
+      physicallyCorrectLights: true 
+    });
     renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     mountRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Lighting
+    // Enhanced lighting setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
-    const pointLight = new THREE.PointLight(0xffffff, 1);
-    pointLight.position.set(5, 5, 5);
-    scene.add(pointLight);
 
-    // Card geometry (as a flat plane)
-    const geometry = new THREE.PlaneGeometry(3, 4); // Standard card ratio
-    const material = new THREE.MeshStandardMaterial({
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(5, 5, 5);
+    directionalLight.castShadow = true;
+    scene.add(directionalLight);
+
+    // Add soft fill light
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    fillLight.position.set(-5, 0, 5);
+    scene.add(fillLight);
+
+    // Card geometry with better materials
+    const geometry = new THREE.PlaneGeometry(4, 5.5); // Standard card ratio
+    const material = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
+      metalness: 0.1,
+      roughness: 0.5,
       side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95
     });
+    
     const card = new THREE.Mesh(geometry, material);
+    card.castShadow = true;
+    card.receiveShadow = true;
     scene.add(card);
     cardRef.current = card;
 
+    // Ground plane for shadow
+    const groundGeometry = new THREE.PlaneGeometry(20, 20);
+    const groundMaterial = new THREE.ShadowMaterial({ opacity: 0.3 });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -3;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
     // Audio setup
     if (enableSound) {
-      audioRef.current = new Audio("/bark.mp3"); // Add a sample sound file
+      audioRef.current = new Audio("/card-open.mp3");
     }
 
-    // Animation loop
+    // Animation loop with smooth movement
     const animate = () => {
       requestAnimationFrame(animate);
       if (cardRef.current) {
         cardRef.current.rotation.y = Math.sin(Date.now() * 0.001) * 0.2;
-        // Add a slight wobble effect
-        cardRef.current.rotation.x = Math.sin(Date.now() * 0.002) * 0.1;
+        // Add subtle floating animation
+        cardRef.current.position.y = Math.sin(Date.now() * 0.002) * 0.1;
       }
       renderer.render(scene, camera);
     };
@@ -112,8 +141,11 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
       imageUrl,
       (texture) => {
         if (cardRef.current) {
-          (cardRef.current.material as THREE.MeshStandardMaterial).map = texture;
-          (cardRef.current.material as THREE.MeshStandardMaterial).needsUpdate = true;
+          // Adjust texture properties for better quality
+          texture.encoding = THREE.sRGBEncoding;
+          texture.anisotropy = 16;
+          (cardRef.current.material as THREE.MeshPhysicalMaterial).map = texture;
+          (cardRef.current.material as THREE.MeshPhysicalMaterial).needsUpdate = true;
         }
       },
       undefined,
@@ -127,7 +159,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
   return (
     <div 
       ref={mountRef} 
-      className="w-full aspect-[4/3] rounded-lg overflow-hidden border border-border"
+      className="w-full aspect-[4/3] rounded-lg overflow-hidden border border-border bg-card shadow-xl"
       role="img"
       aria-label="3D card preview"
     />
