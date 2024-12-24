@@ -34,10 +34,9 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
     camera.position.z = 5;
     cameraRef.current = camera;
 
-    // Renderer setup with antialiasing and physically correct lighting
+    // Renderer setup with antialiasing
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
-      physicallyCorrectLights: true 
     });
     renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     renderer.shadowMap.enabled = true;
@@ -141,8 +140,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
       imageUrl,
       (texture) => {
         if (cardRef.current) {
-          // Adjust texture properties for better quality
-          texture.encoding = THREE.sRGBEncoding;
+          texture.colorSpace = THREE.SRGBColorSpace;
           texture.anisotropy = 16;
           (cardRef.current.material as THREE.MeshPhysicalMaterial).map = texture;
           (cardRef.current.material as THREE.MeshPhysicalMaterial).needsUpdate = true;
