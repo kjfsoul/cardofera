@@ -15,7 +15,9 @@ serve(async (req) => {
     const { prompt } = await req.json()
     const enhancedPrompt = `A beautiful, high quality greeting card image of ${prompt}`
 
-    const hf = new HfInference(Deno.env.get('HUGGING_FACE_ACCESS_TOKEN'))
+    const hf = new HfInference(Deno.env.get('HuggingFace'))
+    
+    console.log('Generating image with prompt:', enhancedPrompt)
     
     const image = await hf.textToImage({
       inputs: enhancedPrompt,
@@ -24,6 +26,8 @@ serve(async (req) => {
 
     const arrayBuffer = await image.arrayBuffer()
     const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+
+    console.log('Image generated successfully')
 
     return new Response(
       JSON.stringify({ image: `data:image/png;base64,${base64}` }),

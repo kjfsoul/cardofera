@@ -19,68 +19,77 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Scene setup
+    // Scene setup with improved lighting
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf5f5f5);
+    scene.background = new THREE.Color(0xf8f9fa);
     sceneRef.current = scene;
 
-    // Camera setup
+    // Camera setup with better positioning
     const camera = new THREE.PerspectiveCamera(
-      75,
+      60,
       mountRef.current.clientWidth / mountRef.current.clientHeight,
       0.1,
       1000
     );
-    camera.position.z = 5;
+    camera.position.z = 4;
+    camera.position.y = 0.5;
     cameraRef.current = camera;
 
-    // Renderer setup with antialiasing
+    // Enhanced renderer setup
     const renderer = new THREE.WebGLRenderer({ 
       antialias: true,
+      alpha: true,
     });
     renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     mountRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Enhanced lighting setup
+    // Improved lighting setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(5, 5, 5);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1);
+    mainLight.position.set(5, 5, 5);
+    mainLight.castShadow = true;
+    mainLight.shadow.mapSize.width = 2048;
+    mainLight.shadow.mapSize.height = 2048;
+    scene.add(mainLight);
 
-    // Add soft fill light
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
     fillLight.position.set(-5, 0, 5);
     scene.add(fillLight);
 
-    // Card geometry with better materials
-    const geometry = new THREE.PlaneGeometry(4, 5.5); // Standard card ratio
+    // Enhanced card material
+    const geometry = new THREE.BoxGeometry(3, 4, 0.1);
     const material = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
       metalness: 0.1,
-      roughness: 0.5,
+      roughness: 0.2,
+      reflectivity: 0.5,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.2,
       side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.95
     });
     
     const card = new THREE.Mesh(geometry, material);
     card.castShadow = true;
     card.receiveShadow = true;
+    card.position.y = 0.5;
     scene.add(card);
     cardRef.current = card;
 
-    // Ground plane for shadow
+    // Ground plane with better shadow
     const groundGeometry = new THREE.PlaneGeometry(20, 20);
-    const groundMaterial = new THREE.ShadowMaterial({ opacity: 0.3 });
+    const groundMaterial = new THREE.ShadowMaterial({ 
+      opacity: 0.2,
+      color: 0x000000,
+    });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -3;
+    ground.position.y = -1.5;
     ground.receiveShadow = true;
     scene.add(ground);
 
@@ -89,28 +98,34 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
       audioRef.current = new Audio("/card-open.mp3");
     }
 
-    // Animation loop with smooth movement
-    const animate = () => {
+    // Smooth animation loop
+    let lastTime = 0;
+    const animate = (time: number) => {
       requestAnimationFrame(animate);
+      
+      const delta = (time - lastTime) / 1000;
+      lastTime = time;
+
       if (cardRef.current) {
-        cardRef.current.rotation.y = Math.sin(Date.now() * 0.001) * 0.2;
-        // Add subtle floating animation
-        cardRef.current.position.y = Math.sin(Date.now() * 0.002) * 0.1;
+        cardRef.current.rotation.y = Math.sin(time * 0.0005) * 0.2;
+        cardRef.current.position.y = 0.5 + Math.sin(time * 0.001) * 0.05;
       }
+      
       renderer.render(scene, camera);
     };
-    animate();
+    animate(0);
 
-    // Handle window resize
+    // Responsive handling
     const handleResize = () => {
       if (!mountRef.current || !camera || !renderer) return;
+      
       camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
     };
     window.addEventListener("resize", handleResize);
 
-    // Play sound on interaction if enabled
+    // Interactive sound
     const handleInteraction = () => {
       if (enableSound && audioRef.current) {
         audioRef.current.play().catch(() => {
@@ -120,7 +135,6 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
     };
     mountRef.current.addEventListener("click", handleInteraction);
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize);
       if (mountRef.current) {
