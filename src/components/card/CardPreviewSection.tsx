@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
 import CardPreview3D from "./CardPreview3D";
+import { Button } from "@/components/ui/button";
+import { Download, Share2 } from "lucide-react";
 
 interface CardPreviewSectionProps {
   selectedImage: string | null;
@@ -13,8 +15,8 @@ const CardPreviewSection = ({
   isSoundEnabled,
 }: CardPreviewSectionProps) => {
   return (
-    <div className="space-y-4">
-      <Card className="p-6 bg-gradient-to-br from-primary/20 to-secondary/20">
+    <div className="space-y-6">
+      <div className="relative">
         <div className="aspect-[4/3]">
           <CardPreview3D
             imageUrl={selectedImage || "/placeholder.svg"}
@@ -22,10 +24,10 @@ const CardPreviewSection = ({
             enableSound={isSoundEnabled}
           />
         </div>
-      </Card>
+      </div>
 
       {selectedImage && (
-        <Card className="p-4">
+        <Card className="p-4 bg-muted/50">
           <div className="aspect-video relative overflow-hidden rounded-lg">
             <img
               src={selectedImage}
@@ -36,26 +38,36 @@ const CardPreviewSection = ({
         </Card>
       )}
 
-      <div className="flex gap-4">
-        <button
-          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors"
+      <div className="grid grid-cols-2 gap-4">
+        <Button
+          variant="default"
+          className="w-full flex items-center justify-center gap-2"
           onClick={() => {
             // Download functionality will be implemented
             console.log("Downloading...");
           }}
         >
+          <Download className="h-4 w-4" />
           Download
-        </button>
-        <button
-          className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground px-4 py-2 rounded-lg transition-colors"
+        </Button>
+        <Button
+          variant="secondary"
+          className="w-full flex items-center justify-center gap-2"
           onClick={() => {
             // Share functionality will be implemented
             console.log("Sharing...");
           }}
         >
+          <Share2 className="h-4 w-4" />
           Share
-        </button>
+        </Button>
       </div>
+
+      {!selectedImage && (
+        <div className="text-center text-muted-foreground text-sm">
+          Your card preview will appear here once you've selected or generated an image
+        </div>
+      )}
     </div>
   );
 };
