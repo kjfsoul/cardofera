@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Wand2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface CardImagePromptProps {
@@ -18,28 +19,40 @@ const CardImagePrompt = ({ onImageGenerate, isGenerating }: CardImagePromptProps
     }
 
     try {
-      // Simulate AI image generation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      onImageGenerate("/placeholder.svg");
-      toast.success("Image generated from prompt!");
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate image");
+
+      const data = await response.json();
+      onImageGenerate(data.image);
+      toast.success("Image generated successfully!");
     } catch (error) {
-      toast.error("Failed to generate image");
+      console.error("Error generating image:", error);
+      toast.error("Failed to generate image. Please try again.");
     }
   };
 
   return (
     <div className="space-y-4">
       <Input
-        placeholder="Describe your card image..."
+        placeholder="Describe your perfect card image (e.g., 'A beautiful birthday cake with colorful candles')"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
+        className="h-12"
       />
       <Button 
         onClick={handleGenerate}
         disabled={isGenerating}
-        className="w-full"
+        className="w-full h-12"
       >
-        {isGenerating ? "Generating..." : "Generate Image"}
+        <Wand2 className="mr-2 h-5 w-5" />
+        {isGenerating ? "Generating Image..." : "Generate Image with AI"}
       </Button>
     </div>
   );
