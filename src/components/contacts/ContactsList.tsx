@@ -33,11 +33,16 @@ const ContactsList = () => {
 
   const addContactMutation = useMutation({
     mutationFn: async (newContact: Omit<Contact, "id" | "created_at" | "user_id">) => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error("User not authenticated");
+
       const { data, error } = await supabase
         .from('contacts')
         .insert([{
           ...newContact,
-          birthday: newContact.birthday?.toISOString().split('T')[0]
+          birthday: newContact.birthday?.toISOString().split('T')[0],
+          user_id: user.id
         }])
         .select()
         .single();
