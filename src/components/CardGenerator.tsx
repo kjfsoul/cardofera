@@ -4,8 +4,10 @@ import CardHeader from "./card/CardHeader";
 import CardGeneratorContent from "./card/CardGeneratorContent";
 import CardPreviewSection from "./card/CardPreviewSection";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const CardGenerator = () => {
+  const navigate = useNavigate();
   const [cardData, setCardData] = useState({
     recipientName: "",
     occasion: "birthday",
@@ -19,6 +21,18 @@ const CardGenerator = () => {
   const [isPremium] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generationError, setGenerationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in to create cards");
+        navigate("/signin");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   useEffect(() => {
     let completed = 0;
@@ -39,6 +53,14 @@ const CardGenerator = () => {
     setGenerationError(null);
 
     try {
+      // Get current user
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in to create cards");
+        navigate("/signin");
+        return;
+      }
+
       // Generate card image if none selected
       if (!selectedImage) {
         const { data, error } = await supabase.functions.invoke('generate-image', {
@@ -51,7 +73,7 @@ const CardGenerator = () => {
         }
       }
 
-      // Save card data
+      // Save card data with user_id
       const { data: cardRecord, error: saveError } = await supabase
         .from('cards')
         .insert([
@@ -62,6 +84,7 @@ const CardGenerator = () => {
             style: cardData.style,
             delivery_method: cardData.deliveryMethod,
             image_url: selectedImage,
+            user_id: session.user.id, // Include user_id from session
           }
         ])
         .select()
