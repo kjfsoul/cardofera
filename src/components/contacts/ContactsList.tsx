@@ -24,7 +24,10 @@ const ContactsList = () => {
         .order('name');
       
       if (error) throw error;
-      return data as Contact[];
+      return data.map(contact => ({
+        ...contact,
+        birthday: contact.birthday ? new Date(contact.birthday) : null
+      })) as Contact[];
     }
   });
 
@@ -32,7 +35,10 @@ const ContactsList = () => {
     mutationFn: async (newContact: Omit<Contact, "id" | "created_at" | "user_id">) => {
       const { data, error } = await supabase
         .from('contacts')
-        .insert([newContact])
+        .insert([{
+          ...newContact,
+          birthday: newContact.birthday?.toISOString().split('T')[0]
+        }])
         .select()
         .single();
       
@@ -54,7 +60,10 @@ const ContactsList = () => {
     mutationFn: async (contact: Partial<Contact>) => {
       const { data, error } = await supabase
         .from('contacts')
-        .update(contact)
+        .update({
+          ...contact,
+          birthday: contact.birthday?.toISOString().split('T')[0]
+        })
         .eq('id', contact.id)
         .select()
         .single();
