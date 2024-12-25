@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import CardHeader from "./card/CardHeader";
 import CardGeneratorContent from "./card/CardGeneratorContent";
 import CardPreviewSection from "./card/CardPreviewSection";
+import { supabase } from "@/integrations/supabase/client";
 
 const CardGenerator = () => {
   const [cardData, setCardData] = useState({
@@ -17,6 +18,7 @@ const CardGenerator = () => {
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [isPremium] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   useEffect(() => {
     let completed = 0;
@@ -34,11 +36,44 @@ const CardGenerator = () => {
     }
 
     setIsGenerating(true);
+    setGenerationError(null);
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Generate card image if none selected
+      if (!selectedImage) {
+        const { data, error } = await supabase.functions.invoke('generate-image', {
+          body: { prompt: `${cardData.occasion} card with message: ${cardData.message}` }
+        });
+
+        if (error) throw error;
+        if (data.image) {
+          setSelectedImage(data.image);
+        }
+      }
+
+      // Save card data
+      const { data: cardRecord, error: saveError } = await supabase
+        .from('cards')
+        .insert([
+          {
+            recipient_name: cardData.recipientName,
+            occasion: cardData.occasion,
+            message: cardData.message,
+            style: cardData.style,
+            delivery_method: cardData.deliveryMethod,
+            image_url: selectedImage,
+          }
+        ])
+        .select()
+        .single();
+
+      if (saveError) throw saveError;
+
       toast.success("Card generated successfully!");
     } catch (error) {
-      toast.error("Failed to generate card");
+      console.error('Generation error:', error);
+      setGenerationError(error.message);
+      toast.error("Failed to generate card. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -58,6 +93,7 @@ const CardGenerator = () => {
           handleGenerate={handleGenerate}
           progress={progress}
           isPremium={isPremium}
+          error={generationError}
         />
 
         <div className="lg:sticky lg:top-6">
@@ -65,6 +101,7 @@ const CardGenerator = () => {
             selectedImage={selectedImage}
             cardMessage={cardData.message}
             isSoundEnabled={isSoundEnabled}
+            isGenerating={isGenerating}
           />
         </div>
       </div>

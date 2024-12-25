@@ -24,8 +24,8 @@ serve(async (req) => {
       model: 'stabilityai/stable-diffusion-2-1',
       parameters: {
         negative_prompt: "blurry, bad quality, distorted, ugly",
-        num_inference_steps: 30,
-        guidance_scale: 7.5,
+        num_inference_steps: 25,
+        guidance_scale: 7.0,
       }
     })
 
