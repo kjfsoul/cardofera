@@ -93,7 +93,7 @@ const CardGenerator = () => {
           handleGenerate={handleGenerate}
           progress={progress}
           isPremium={isPremium}
-          error={generationError}
+          generationError={generationError}
         />
 
         <div className="lg:sticky lg:top-6">

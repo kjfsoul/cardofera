@@ -3,16 +3,18 @@ import CardPreview3D from "./CardPreview3D";
 import { Button } from "@/components/ui/button";
 import { Download, Share2 } from "lucide-react";
 
-interface CardPreviewSectionProps {
+export interface CardPreviewSectionProps {
   selectedImage: string | null;
   cardMessage: string;
   isSoundEnabled: boolean;
+  isGenerating: boolean;
 }
 
 const CardPreviewSection = ({
   selectedImage,
   cardMessage,
   isSoundEnabled,
+  isGenerating,
 }: CardPreviewSectionProps) => {
   return (
     <div className="space-y-6">
@@ -42,6 +44,7 @@ const CardPreviewSection = ({
         <Button
           variant="default"
           className="w-full flex items-center justify-center gap-2"
+          disabled={isGenerating}
           onClick={() => {
             // Download functionality will be implemented
             console.log("Downloading...");
@@ -53,6 +56,7 @@ const CardPreviewSection = ({
         <Button
           variant="secondary"
           className="w-full flex items-center justify-center gap-2"
+          disabled={isGenerating}
           onClick={() => {
             // Share functionality will be implemented
             console.log("Sharing...");

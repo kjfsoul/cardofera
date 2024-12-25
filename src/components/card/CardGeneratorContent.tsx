@@ -8,15 +8,24 @@ import CardStyleSelector from "./CardStyleSelector";
 import DeliverySelector from "./DeliverySelector";
 import PremiumFeatures from "./PremiumFeatures";
 
-interface CardGeneratorContentProps {
-  cardData: any;
-  setCardData: (data: any) => void;
+export interface CardData {
+  recipientName: string;
+  occasion: string;
+  message: string;
+  style: string;
+  deliveryMethod: string;
+}
+
+export interface CardGeneratorContentProps {
+  cardData: CardData;
+  setCardData: (data: CardData) => void;
   selectedImage: string | null;
   setSelectedImage: (image: string | null) => void;
   isGenerating: boolean;
   handleGenerate: () => Promise<void>;
   progress: number;
   isPremium: boolean;
+  generationError?: string | null;
 }
 
 const CardGeneratorContent = ({
@@ -28,6 +37,7 @@ const CardGeneratorContent = ({
   handleGenerate,
   progress,
   isPremium,
+  generationError,
 }: CardGeneratorContentProps) => {
   const [showImageSearch, setShowImageSearch] = useState(false);
 
@@ -68,6 +78,10 @@ const CardGeneratorContent = ({
           isPremium={isPremium}
         />
       </Card>
+
+      {generationError && (
+        <div className="text-red-500 text-sm">{generationError}</div>
+      )}
 
       <Button
         onClick={handleGenerate}
