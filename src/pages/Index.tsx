@@ -13,6 +13,7 @@ import CardGenerator from "@/components/CardGenerator";
 import NavigationButtons from "@/components/NavigationButtons";
 import ProgressTracker from "@/components/ProgressTracker";
 import BirthdayList from "@/components/contacts/BirthdayList";
+import ContactsList from "@/components/contacts/ContactsList";
 
 const Index = () => {
   const { user } = useAuth();
@@ -28,7 +29,12 @@ const Index = () => {
       </div>
     ),
     calendar: <CalendarIntegration />,
-    recipients: <GiftRecipients />,
+    recipients: (
+      <div className="space-y-8">
+        <ContactsList />
+        <GiftRecipients />
+      </div>
+    ),
   };
 
   const progressItems = [
@@ -189,4 +195,3 @@ const Index = () => {
 };
 
 export default Index;
-
