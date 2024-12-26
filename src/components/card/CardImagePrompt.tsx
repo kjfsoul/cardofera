@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Wand2 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CardImagePromptProps {
   onImageGenerate: (url: string) => void;
@@ -19,19 +20,18 @@ const CardImagePrompt = ({ onImageGenerate, isGenerating }: CardImagePromptProps
     }
 
     try {
-      const response = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt }),
+      const { data, error } = await supabase.functions.invoke('generate-image', {
+        body: { prompt: prompt }
       });
 
-      if (!response.ok) throw new Error("Failed to generate image");
-
-      const data = await response.json();
-      onImageGenerate(data.image);
-      toast.success("Image generated successfully!");
+      if (error) throw error;
+      
+      if (data?.image) {
+        onImageGenerate(data.image);
+        toast.success("Image generated successfully!");
+      } else {
+        throw new Error("No image data received");
+      }
     } catch (error) {
       console.error("Error generating image:", error);
       toast.error("Failed to generate image. Please try again.");
