@@ -19,31 +19,42 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoading) return; // Prevent multiple submissions
     setIsLoading(true);
 
     try {
       // Enhanced validation
       if (!email || !password) {
         toast.error("Please fill in all fields");
-        setIsLoading(false);
         return;
       }
 
       if (!validateEmail(email)) {
         toast.error("Please enter a valid email address");
-        setIsLoading(false);
         return;
       }
 
       if (password.length < 6) {
         toast.error("Password must be at least 6 characters long");
-        setIsLoading(false);
         return;
       }
 
       const trimmedEmail = email.trim().toLowerCase();
-      console.log("Attempting sign in with:", { email: trimmedEmail });
       
+      // First, check if the user exists
+      const { data: userExists } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', trimmedEmail)
+        .single();
+
+      if (!userExists) {
+        toast.error("No account found with this email. Please sign up first.");
+        return;
+      }
+
+      // Attempt sign in with validated credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
         password: password.trim(),
@@ -57,7 +68,7 @@ const SignIn = () => {
         });
         
         if (error.message === "Invalid login credentials") {
-          toast.error("The email or password you entered is incorrect. Please try again.");
+          toast.error("Incorrect password. Please try again.");
         } else if (error.message.includes("Email not confirmed")) {
           toast.error("Please verify your email address before signing in.");
         } else if (error.message.includes("Email logins are disabled")) {
