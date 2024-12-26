@@ -19,30 +19,55 @@ serve(async (req) => {
     
     const hf = new HfInference(Deno.env.get('HuggingFace'))
     
-    const image = await hf.textToImage({
-      inputs: enhancedPrompt,
-      model: 'stabilityai/stable-diffusion-2-1',
-      parameters: {
-        negative_prompt: "blurry, bad quality, distorted, ugly",
-        num_inference_steps: 25,
-        guidance_scale: 7.0,
+    try {
+      const image = await hf.textToImage({
+        inputs: enhancedPrompt,
+        model: 'stabilityai/stable-diffusion-2-1',
+        parameters: {
+          negative_prompt: "blurry, bad quality, distorted, ugly",
+          num_inference_steps: 25,
+          guidance_scale: 7.0,
+        }
+      })
+
+      console.log('Image generated successfully')
+
+      const arrayBuffer = await image.arrayBuffer()
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+
+      return new Response(
+        JSON.stringify({ image: `data:image/png;base64,${base64}` }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    } catch (error) {
+      // Check if error is related to rate limiting
+      if (error.message?.includes('Max requests')) {
+        console.error('Rate limit reached:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Rate limit reached',
+            details: 'Please wait a minute before trying again',
+            retryAfter: 60 // Seconds to wait
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 429 // Too Many Requests
+          }
+        )
       }
-    })
-
-    console.log('Image generated successfully')
-
-    const arrayBuffer = await image.arrayBuffer()
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-
-    return new Response(
-      JSON.stringify({ image: `data:image/png;base64,${base64}` }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+      throw error // Re-throw other errors
+    }
   } catch (error) {
     console.error('Error generating image:', error)
     return new Response(
-      JSON.stringify({ error: 'Failed to generate image', details: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ 
+        error: 'Failed to generate image', 
+        details: error.message 
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+        status: 500 
+      }
     )
   }
 })
