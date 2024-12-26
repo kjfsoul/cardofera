@@ -41,27 +41,32 @@ const SignIn = () => {
         return;
       }
 
-      console.log("Attempting sign in with:", { email: email.trim() });
+      const trimmedEmail = email.trim().toLowerCase();
+      console.log("Attempting sign in with:", { email: trimmedEmail });
       
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: trimmedEmail,
         password: password.trim(),
       });
 
-      console.log("Sign in response:", { data, error });
-
       if (error) {
+        console.error("Sign in error details:", {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        
         if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please check your credentials and try again.");
+          toast.error("The email or password you entered is incorrect. Please try again.");
         } else if (error.message.includes("Email not confirmed")) {
           toast.error("Please verify your email address before signing in.");
         } else if (error.message.includes("Email logins are disabled")) {
           toast.error("Email authentication is not enabled. Please contact support.");
           console.error("Email authentication is disabled in Supabase settings");
         } else {
-          toast.error(error.message);
+          toast.error("An error occurred during sign in. Please try again.");
+          console.error("Unhandled sign in error:", error);
         }
-        console.error("Sign in error:", error);
         return;
       }
 
@@ -74,8 +79,8 @@ const SignIn = () => {
         toast.error("Something went wrong. Please try again.");
       }
     } catch (error: any) {
-      console.error("Sign in error:", error);
-      toast.error(error.message || "An error occurred during sign in");
+      console.error("Unexpected error during sign in:", error);
+      toast.error("An unexpected error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
