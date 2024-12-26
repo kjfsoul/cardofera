@@ -55,6 +55,9 @@ const SignIn = () => {
           toast.error("Invalid email or password. Please check your credentials and try again.");
         } else if (error.message.includes("Email not confirmed")) {
           toast.error("Please verify your email address before signing in.");
+        } else if (error.message.includes("Email logins are disabled")) {
+          toast.error("Email authentication is not enabled. Please contact support.");
+          console.error("Email authentication is disabled in Supabase settings");
         } else {
           toast.error(error.message);
         }
