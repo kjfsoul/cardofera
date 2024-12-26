@@ -73,18 +73,14 @@ const CardGenerator = () => {
         }
       }
 
-      // Save card data with user_id
+      // Save card data with user_id to contacts table instead
       const { data: cardRecord, error: saveError } = await supabase
-        .from('cards')
+        .from('contacts')
         .insert([
           {
-            recipient_name: cardData.recipientName,
-            occasion: cardData.occasion,
-            message: cardData.message,
-            style: cardData.style,
-            delivery_method: cardData.deliveryMethod,
-            image_url: selectedImage,
-            user_id: session.user.id, // Include user_id from session
+            name: cardData.recipientName,
+            relationship: cardData.occasion,
+            user_id: session.user.id,
           }
         ])
         .select()

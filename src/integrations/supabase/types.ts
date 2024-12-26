@@ -39,6 +39,60 @@ export type Database = {
         }
         Relationships: []
       }
+      game_plays: {
+        Row: {
+          created_at: string | null
+          discount_won: number | null
+          id: string
+          played_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          discount_won?: number | null
+          id?: string
+          played_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          discount_won?: number | null
+          id?: string
+          played_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      gift_recommendations: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -57,6 +111,30 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+        }
+        Relationships: []
+      }
+      user_gift_preferences: {
+        Row: {
+          aura_color: string
+          created_at: string | null
+          id: string
+          preferred_categories: string[] | null
+          user_id: string
+        }
+        Insert: {
+          aura_color: string
+          created_at?: string | null
+          id?: string
+          preferred_categories?: string[] | null
+          user_id: string
+        }
+        Update: {
+          aura_color?: string
+          created_at?: string | null
+          id?: string
+          preferred_categories?: string[] | null
+          user_id?: string
         }
         Relationships: []
       }
