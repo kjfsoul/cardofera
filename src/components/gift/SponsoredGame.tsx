@@ -1,86 +1,136 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Gift, Sparkles } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Trophy, Percent } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-interface SponsoredGameProps {
-  onWin: (discount: number) => void;
-}
-
-const SponsoredGame = ({ onWin }: SponsoredGameProps) => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playsRemaining, setPlaysRemaining] = useState(3);
+const SponsoredGame = () => {
   const [isSpinning, setIsSpinning] = useState(false);
+  const [playsRemaining, setPlaysRemaining] = useState(3);
+  const queryClient = useQueryClient();
+
+  const { data: gamePlays } = useQuery({
+    queryKey: ['game_plays'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('game_plays')
+        .select('*')
+        .gte('played_at', today);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
   useEffect(() => {
-    const lastPlayDate = localStorage.getItem('lastPlayDate');
-    const today = new Date().toDateString();
-    
-    if (lastPlayDate !== today) {
-      localStorage.setItem('lastPlayDate', today);
-      localStorage.setItem('playsRemaining', '3');
-      setPlaysRemaining(3);
-    } else {
-      const remaining = Number(localStorage.getItem('playsRemaining')) || 0;
-      setPlaysRemaining(remaining);
+    if (gamePlays) {
+      setPlaysRemaining(Math.max(0, 3 - gamePlays.length));
     }
-  }, []);
+  }, [gamePlays]);
 
-  const handlePlay = async () => {
+  const playGameMutation = useMutation({
+    mutationFn: async () => {
+      const discount = Math.floor(Math.random() * 31) + 20; // 20-50%
+      const code = `WIN${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+      
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7);
+
+      const { data, error } = await supabase
+        .from('discount_codes')
+        .insert([{
+          code,
+          percentage: discount,
+          expires_at: expiresAt.toISOString()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      await supabase
+        .from('game_plays')
+        .insert([{ discount_won: discount }]);
+
+      return { discount, code };
+    },
+    onSuccess: ({ discount, code }) => {
+      queryClient.invalidateQueries({ queryKey: ['game_plays'] });
+      toast.success(
+        <div className="flex flex-col items-center gap-2">
+          <Trophy className="h-6 w-6 text-yellow-400" />
+          <span>Congratulations! You won {discount}% off!</span>
+          <span className="text-sm font-mono bg-primary/10 px-2 py-1 rounded">
+            Code: {code}
+          </span>
+        </div>
+      );
+    }
+  });
+
+  const handleSpin = async () => {
     if (playsRemaining <= 0) {
       toast.error("No plays remaining today. Come back tomorrow!");
       return;
     }
 
-    setIsPlaying(true);
     setIsSpinning(true);
-
-    // Simulate wheel spin
-    const spinDuration = 2000;
-    const discount = Math.floor(Math.random() * 31) + 20; // Random discount between 20-50%
-
-    setTimeout(() => {
-      setIsSpinning(false);
-      toast.success(
-        <div className="flex flex-col items-center gap-2">
-          <Sparkles className="h-6 w-6 text-yellow-400" />
-          <span>Congratulations! You won a {discount}% discount!</span>
-        </div>
-      );
-      onWin(discount);
-      
-      const newPlaysRemaining = playsRemaining - 1;
-      setPlaysRemaining(newPlaysRemaining);
-      localStorage.setItem('playsRemaining', String(newPlaysRemaining));
-      
-      setIsPlaying(false);
-    }, spinDuration);
+    await playGameMutation.mutateAsync();
+    setTimeout(() => setIsSpinning(false), 3000);
   };
 
   return (
-    <div className="p-4 rounded-lg border border-primary/20 bg-primary/5">
-      <h3 className="text-lg font-semibold mb-2">Win Gift Package Discounts!</h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        Spin the wheel to win discounts up to 50% off. {playsRemaining} plays remaining today.
-      </p>
-      <motion.div
-        animate={isSpinning ? { rotate: 360 * 5 } : {}}
-        transition={{ duration: 2, ease: "easeInOut" }}
-        className="w-24 h-24 mx-auto mb-4"
-      >
-        <Gift className="w-full h-full text-primary" />
-      </motion.div>
-      <Button
-        variant="outline"
-        onClick={handlePlay}
-        disabled={isPlaying || playsRemaining <= 0}
-        className="w-full"
-      >
-        <Gift className="mr-2 h-4 w-4" />
-        {isPlaying ? "Spinning..." : "Spin to Win"}
-      </Button>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Trophy className="h-5 w-5" />
+          Spin & Win Discounts
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="text-center">
+          <p className="text-sm text-muted-foreground">
+            Spin the wheel to win discounts up to 50% off!
+          </p>
+          <p className="text-sm font-medium mt-2">
+            {playsRemaining} plays remaining today
+          </p>
+        </div>
+
+        <motion.div
+          animate={isSpinning ? { rotate: 360 * 5 } : {}}
+          transition={{ duration: 3, ease: "easeInOut" }}
+          className="relative w-48 h-48 mx-auto"
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Percent className="w-24 h-24 text-primary" />
+          </div>
+          <svg className="w-full h-full" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="45"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="text-primary/20"
+            />
+          </svg>
+        </motion.div>
+
+        <Button
+          onClick={handleSpin}
+          disabled={isSpinning || playsRemaining <= 0}
+          className="w-full"
+        >
+          {isSpinning ? "Spinning..." : "Spin to Win"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 

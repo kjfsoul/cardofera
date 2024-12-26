@@ -14,6 +14,8 @@ import NavigationButtons from "@/components/NavigationButtons";
 import ProgressTracker from "@/components/ProgressTracker";
 import BirthdayList from "@/components/contacts/BirthdayList";
 import ContactsList from "@/components/contacts/ContactsList";
+import AuraGiftShowcase from "@/components/gift/AuraGiftShowcase";
+import SponsoredGame from "@/components/gift/SponsoredGame";
 
 const Index = () => {
   const { user } = useAuth();
@@ -25,7 +27,11 @@ const Index = () => {
     gifts: (
       <div className="space-y-8">
         <GiftQuiz />
-        <ProductShowcase />
+        <AuraGiftShowcase />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ProductShowcase />
+          <SponsoredGame />
+        </div>
       </div>
     ),
     calendar: <CalendarIntegration />,

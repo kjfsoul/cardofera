@@ -39,6 +39,36 @@ export type Database = {
         }
         Relationships: []
       }
+      discount_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          percentage: number
+          used: boolean | null
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          percentage: number
+          used?: boolean | null
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          percentage?: number
+          used?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_plays: {
         Row: {
           created_at: string | null
@@ -62,6 +92,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      gift_favorites: {
+        Row: {
+          created_at: string | null
+          gift_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          gift_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          gift_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_favorites_gift_id_fkey"
+            columns: ["gift_id"]
+            isOneToOne: false
+            referencedRelation: "gift_recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gift_recommendations: {
         Row: {
