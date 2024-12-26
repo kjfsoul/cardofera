@@ -12,25 +12,49 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // Basic validation
+      // Enhanced validation
       if (!email || !password) {
         toast.error("Please fill in all fields");
+        setIsLoading(false);
         return;
       }
 
+      if (!validateEmail(email)) {
+        toast.error("Please enter a valid email address");
+        setIsLoading(false);
+        return;
+      }
+
+      if (password.length < 6) {
+        toast.error("Password must be at least 6 characters long");
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("Attempting sign in with:", { email: email.trim() });
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password.trim(),
       });
 
+      console.log("Sign in response:", { data, error });
+
       if (error) {
         if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please try again.");
+          toast.error("Invalid email or password. Please check your credentials and try again.");
+        } else if (error.message.includes("Email not confirmed")) {
+          toast.error("Please verify your email address before signing in.");
         } else {
           toast.error(error.message);
         }
@@ -39,8 +63,12 @@ const SignIn = () => {
       }
 
       if (data.session) {
+        console.log("Successfully signed in with session:", data.session);
         toast.success("Successfully signed in!");
         navigate("/");
+      } else {
+        console.error("No session after successful sign in");
+        toast.error("Something went wrong. Please try again.");
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
