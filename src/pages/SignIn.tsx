@@ -17,20 +17,34 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
+      // Basic validation
+      if (!email || !password) {
+        toast.error("Please fill in all fields");
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === "Invalid login credentials") {
+          toast.error("Invalid email or password. Please try again.");
+        } else {
+          toast.error(error.message);
+        }
+        console.error("Sign in error:", error);
+        return;
+      }
 
       if (data.session) {
         toast.success("Successfully signed in!");
         navigate("/");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign in error:", error);
-      toast.error(error.message || "Failed to sign in");
+      toast.error(error.message || "An error occurred during sign in");
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +70,8 @@ const SignIn = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
+              className="w-full"
             />
           </div>
 
@@ -70,6 +86,8 @@ const SignIn = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
+              className="w-full"
             />
           </div>
 
@@ -89,6 +107,7 @@ const SignIn = () => {
               variant="link"
               className="p-0 h-auto font-semibold"
               onClick={() => navigate("/signup")}
+              disabled={isLoading}
             >
               Sign up
             </Button>
