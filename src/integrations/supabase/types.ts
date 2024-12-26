@@ -9,126 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      cards: {
-        Row: {
-          created_at: string
-          delivery_method: string
-          id: string
-          image_url: string | null
-          message: string
-          occasion: string
-          recipient_name: string
-          status: string | null
-          style: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          delivery_method: string
-          id?: string
-          image_url?: string | null
-          message: string
-          occasion: string
-          recipient_name: string
-          status?: string | null
-          style: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          delivery_method?: string
-          id?: string
-          image_url?: string | null
-          message?: string
-          occasion?: string
-          recipient_name?: string
-          status?: string | null
-          style?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       contacts: {
         Row: {
           birthday: string | null
-          created_at: string
+          created_at: string | null
           id: string
           name: string
           preferred_categories: string[] | null
           relationship: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           birthday?: string | null
-          created_at?: string
+          created_at?: string | null
           id?: string
           name: string
           preferred_categories?: string[] | null
           relationship: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           birthday?: string | null
-          created_at?: string
+          created_at?: string | null
           id?: string
           name?: string
           preferred_categories?: string[] | null
           relationship?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      gift_recommendations: {
-        Row: {
-          category: string
-          created_at: string
-          id: string
-          image_url: string | null
-          name: string
-          price: number
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          name: string
-          price: number
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          name?: string
-          price?: number
+          user_id?: string | null
         }
         Relationships: []
       }
       profiles: {
         Row: {
-          bio: string | null
           created_at: string | null
-          id: number
-          user_id: string | null
-          username: string | null
+          email: string
+          full_name: string | null
+          id: string
         }
         Insert: {
-          bio?: string | null
           created_at?: string | null
-          id?: never
-          user_id?: string | null
-          username?: string | null
+          email: string
+          full_name?: string | null
+          id: string
         }
         Update: {
-          bio?: string | null
           created_at?: string | null
-          id?: never
-          user_id?: string | null
-          username?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
         }
         Relationships: []
       }
