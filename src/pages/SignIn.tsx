@@ -20,11 +20,10 @@ const SignIn = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (isLoading) return; // Prevent multiple submissions
+    if (isLoading) return;
     setIsLoading(true);
 
     try {
-      // Enhanced validation
       if (!email || !password) {
         toast.error("Please fill in all fields");
         return;
@@ -44,7 +43,6 @@ const SignIn = () => {
       
       console.log("Attempting sign in for email:", trimmedEmail);
       
-      // Attempt sign in with validated credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
         password: password.trim(),
@@ -58,15 +56,17 @@ const SignIn = () => {
         });
         
         if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please try again or sign up if you don't have an account.");
+          toast.error("Invalid email or password. Please try again or sign up if you don't have an account.", {
+            action: {
+              label: "Sign Up",
+              onClick: () => navigate("/signup")
+            }
+          });
         } else if (error.message.includes("Email not confirmed")) {
           toast.error("Please verify your email address before signing in.");
-        } else if (error.message.includes("Email logins are disabled")) {
-          toast.error("Email authentication is not enabled. Please contact support.");
-          console.error("Email authentication is disabled in Supabase settings");
         } else {
-          toast.error("An error occurred during sign in. Please try again.");
           console.error("Unhandled sign in error:", error);
+          toast.error("An error occurred during sign in. Please try again.");
         }
         return;
       }
