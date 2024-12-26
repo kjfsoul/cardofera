@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import CardPreview3D from "./CardPreview3D";
-import { Button } from "@/components/ui/button";
-import { Download, Share2 } from "lucide-react";
+import CardDownloadShare from "./CardDownloadShare";
 
 export interface CardPreviewSectionProps {
   selectedImage: string | null;
@@ -30,46 +29,27 @@ const CardPreviewSection = ({
 
       {selectedImage && (
         <Card className="p-4 bg-muted/50">
-          <div className="aspect-video relative overflow-hidden rounded-lg">
+          <div className="aspect-video relative overflow-hidden rounded-lg mb-4">
             <img
               src={selectedImage}
               alt="Generated card preview"
               className="object-cover w-full h-full"
             />
           </div>
+          <div className="text-sm text-muted-foreground mb-4">
+            {cardMessage}
+          </div>
+          <CardDownloadShare
+            imageUrl={selectedImage}
+            isGenerating={isGenerating}
+          />
         </Card>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button
-          variant="default"
-          className="w-full flex items-center justify-center gap-2"
-          disabled={isGenerating}
-          onClick={() => {
-            // Download functionality will be implemented
-            console.log("Downloading...");
-          }}
-        >
-          <Download className="h-4 w-4" />
-          Download
-        </Button>
-        <Button
-          variant="secondary"
-          className="w-full flex items-center justify-center gap-2"
-          disabled={isGenerating}
-          onClick={() => {
-            // Share functionality will be implemented
-            console.log("Sharing...");
-          }}
-        >
-          <Share2 className="h-4 w-4" />
-          Share
-        </Button>
-      </div>
-
       {!selectedImage && (
         <div className="text-center text-muted-foreground text-sm">
-          Your card preview will appear here once you've selected or generated an image
+          Your card preview will appear here once you've selected or generated an
+          image
         </div>
       )}
     </div>

@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Wand2, RotateCcw } from "lucide-react";
+import RecipientSelect from "./RecipientSelect";
 
 interface CardFormProps {
   cardData: {
@@ -17,7 +17,12 @@ interface CardFormProps {
   handleGenerate: () => Promise<void>;
 }
 
-const CardForm = ({ cardData, setCardData, isGenerating, handleGenerate }: CardFormProps) => {
+const CardForm = ({
+  cardData,
+  setCardData,
+  isGenerating,
+  handleGenerate,
+}: CardFormProps) => {
   const occasions = [
     "birthday",
     "anniversary",
@@ -33,7 +38,7 @@ const CardForm = ({ cardData, setCardData, isGenerating, handleGenerate }: CardF
     "baby-shower",
     "halloween",
     "easter",
-    "thanksgiving"
+    "thanksgiving",
   ];
 
   const handleReset = () => {
@@ -42,12 +47,11 @@ const CardForm = ({ cardData, setCardData, isGenerating, handleGenerate }: CardF
       occasion: "birthday",
       message: "",
       style: "modern",
-      deliveryMethod: "email"
+      deliveryMethod: "email",
     });
   };
 
   const handleAutoSuggest = () => {
-    // This is a placeholder for AI-powered message suggestion
     const suggestedMessage = `Dear ${cardData.recipientName},\nWishing you a wonderful ${cardData.occasion}!`;
     setCardData({ ...cardData, message: suggestedMessage });
   };
@@ -67,13 +71,11 @@ const CardForm = ({ cardData, setCardData, isGenerating, handleGenerate }: CardF
         </Button>
       </div>
 
-      <Input
-        id="recipientName"
+      <RecipientSelect
         value={cardData.recipientName}
-        onChange={(e) =>
-          setCardData({ ...cardData, recipientName: e.target.value })
+        onChange={(value) =>
+          setCardData({ ...cardData, recipientName: value })
         }
-        placeholder="Enter recipient's name"
       />
 
       <div className="space-y-2">
@@ -88,7 +90,8 @@ const CardForm = ({ cardData, setCardData, isGenerating, handleGenerate }: CardF
         >
           {occasions.map((occasion) => (
             <option key={occasion} value={occasion}>
-              {occasion.charAt(0).toUpperCase() + occasion.slice(1).replace('-', ' ')}
+              {occasion.charAt(0).toUpperCase() +
+                occasion.slice(1).replace("-", " ")}
             </option>
           ))}
         </select>
