@@ -42,18 +42,8 @@ const SignIn = () => {
 
       const trimmedEmail = email.trim().toLowerCase();
       
-      // First, check if the user exists
-      const { data: userExists } = await supabase
-        .from('users')
-        .select('email')
-        .eq('email', trimmedEmail)
-        .single();
-
-      if (!userExists) {
-        toast.error("No account found with this email. Please sign up first.");
-        return;
-      }
-
+      console.log("Attempting sign in for email:", trimmedEmail);
+      
       // Attempt sign in with validated credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
@@ -68,7 +58,7 @@ const SignIn = () => {
         });
         
         if (error.message === "Invalid login credentials") {
-          toast.error("Incorrect password. Please try again.");
+          toast.error("Invalid email or password. Please try again or sign up if you don't have an account.");
         } else if (error.message.includes("Email not confirmed")) {
           toast.error("Please verify your email address before signing in.");
         } else if (error.message.includes("Email logins are disabled")) {
