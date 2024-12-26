@@ -6,6 +6,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 60000; // 1 minute in milliseconds
+const MAX_REQUESTS = 3; // Hugging Face free tier limit
+
+const requestLog = new Map<string, { count: number; lastRequest: number }>();
+
+function checkRateLimit(clientId: string): boolean {
+  const now = Date.now();
+  const clientRequests = requestLog.get(clientId) || { count: 0, lastRequest: now };
+
+  if (now - clientRequests.lastRequest > RATE_LIMIT_WINDOW) {
+    clientRequests.count = 0;
+    clientRequests.lastRequest = now;
+  }
+
+  if (clientRequests.count >= MAX_REQUESTS) {
+    return false;
+  }
+
+  clientRequests.count++;
+  requestLog.set(clientId, clientRequests);
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -13,60 +37,48 @@ serve(async (req) => {
 
   try {
     const { prompt } = await req.json()
-    const enhancedPrompt = `A beautiful, high quality greeting card image of ${prompt}`
+    const clientId = req.headers.get('x-client-info') || 'anonymous'
 
-    console.log('Starting image generation with prompt:', enhancedPrompt)
-    
-    const hf = new HfInference(Deno.env.get('HuggingFace'))
-    
-    try {
-      const image = await hf.textToImage({
-        inputs: enhancedPrompt,
-        model: 'stabilityai/stable-diffusion-2-1',
-        parameters: {
-          negative_prompt: "blurry, bad quality, distorted, ugly",
-          num_inference_steps: 25,
-          guidance_scale: 7.0,
-        }
-      })
-
-      console.log('Image generated successfully')
-
-      const arrayBuffer = await image.arrayBuffer()
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
-
+    if (!checkRateLimit(clientId)) {
       return new Response(
-        JSON.stringify({ image: `data:image/png;base64,${base64}` }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    } catch (error) {
-      // Check if error is related to rate limiting
-      if (error.message?.includes('Max requests')) {
-        console.error('Rate limit reached:', error)
-        return new Response(
-          JSON.stringify({ 
-            error: 'Rate limit reached',
-            details: 'Please wait a minute before trying again',
-            retryAfter: 60 // Seconds to wait
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 429 // Too Many Requests
+        JSON.stringify({ 
+          error: 'Rate limit exceeded',
+          message: 'Please wait a minute before generating another image'
+        }),
+        { 
+          status: 429,
+          headers: { 
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': '60'
           }
-        )
-      }
-      throw error // Re-throw other errors
+        }
+      )
     }
+
+    const hf = new HfInference(Deno.env.get('HUGGING_FACE_ACCESS_TOKEN'))
+    const image = await hf.textToImage({
+      inputs: prompt,
+      model: 'black-forest-labs/FLUX.1-schnell',
+    })
+
+    const arrayBuffer = await image.arrayBuffer()
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))
+
+    return new Response(
+      JSON.stringify({ image: `data:image/png;base64,${base64}` }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
-    console.error('Error generating image:', error)
+    console.error('Error:', error)
     return new Response(
       JSON.stringify({ 
-        error: 'Failed to generate image', 
-        details: error.message 
+        error: 'Failed to generate image',
+        details: error.message
       }),
       { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-        status: 500 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500
       }
     )
   }

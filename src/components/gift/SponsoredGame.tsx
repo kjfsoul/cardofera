@@ -16,9 +16,13 @@ const SponsoredGame = () => {
     queryKey: ['game_plays'],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('game_plays')
         .select('*')
+        .eq('user_id', user.id)
         .gte('played_at', today);
       
       if (error) throw error;
@@ -32,29 +36,46 @@ const SponsoredGame = () => {
     }
   }, [gamePlays]);
 
+  const generateUniqueCode = () => {
+    return `WIN${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+  };
+
+  const getExpiryDate = () => {
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+    return date.toISOString();
+  };
+
   const playGameMutation = useMutation({
     mutationFn: async () => {
-      const discount = Math.floor(Math.random() * 31) + 20; // 20-50%
-      const code = `WIN${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-      
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      const discount = Math.floor(Math.random() * 31) + 20; // 20-50%
+      const code = generateUniqueCode();
+      const expiresAt = getExpiryDate();
+
+      // Create discount code
+      const { error: discountError } = await supabase
         .from('discount_codes')
-        .insert([{
+        .insert({
           code,
           percentage: discount,
-          expires_at: expiresAt.toISOString()
-        }])
-        .select()
-        .single();
+          expires_at: expiresAt,
+          user_id: user.id
+        });
 
-      if (error) throw error;
+      if (discountError) throw discountError;
 
-      await supabase
+      // Record game play
+      const { error: gamePlayError } = await supabase
         .from('game_plays')
-        .insert([{ discount_won: discount }]);
+        .insert({
+          discount_won: discount,
+          user_id: user.id
+        });
+
+      if (gamePlayError) throw gamePlayError;
 
       return { discount, code };
     },
@@ -69,6 +90,10 @@ const SponsoredGame = () => {
           </span>
         </div>
       );
+    },
+    onError: (error) => {
+      console.error('Error playing game:', error);
+      toast.error("Failed to play game. Please try again.");
     }
   });
 

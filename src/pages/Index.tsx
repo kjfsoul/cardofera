@@ -16,18 +16,23 @@ import BirthdayList from "@/components/contacts/BirthdayList";
 import ContactsList from "@/components/contacts/ContactsList";
 import AuraGiftShowcase from "@/components/gift/AuraGiftShowcase";
 import SponsoredGame from "@/components/gift/SponsoredGame";
+import { AuraColor } from "@/types/gift";
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<string>("cards");
+  const [selectedAura, setSelectedAura] = useState<AuraColor | undefined>();
 
   const sections = {
     cards: <CardGenerator />,
     gifts: (
       <div className="space-y-8">
         <GiftQuiz />
-        <AuraGiftShowcase />
+        <AuraGiftShowcase
+          selectedAura={selectedAura}
+          onAuraSelect={(aura) => setSelectedAura(aura)}
+        />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ProductShowcase />
           <SponsoredGame />
@@ -61,7 +66,6 @@ const Index = () => {
       navigate("/signup");
     } else {
       setActiveSection(section);
-      // Smooth scroll to content
       const element = document.getElementById("app-content");
       element?.scrollIntoView({ behavior: "smooth" });
     }

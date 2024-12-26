@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ interface AuraGiftShowcaseProps {
 
 const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps) => {
   const [priceRange, setPriceRange] = useState([50, 200]);
+  const queryClient = useQueryClient();
   
   const { data: gifts, isLoading } = useQuery({
     queryKey: ['gifts', selectedAura, priceRange],
@@ -37,28 +38,29 @@ const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps)
     }
   });
 
-  const { data: favorites = [] } = useQuery({
-    queryKey: ['favorites'],
-    queryFn: async () => {
-      const { data, error } = await supabase
+  const addToFavoritesMutation = useMutation({
+    mutationFn: async (giftId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
         .from('gift_favorites')
-        .select('gift_id');
+        .insert({
+          gift_id: giftId,
+          user_id: user.id
+        });
+
       if (error) throw error;
-      return data.map(f => f.gift_id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['favorites'] });
+      toast.success("Added to favorites!");
+    },
+    onError: (error) => {
+      console.error('Error adding to favorites:', error);
+      toast.error("Failed to add to favorites");
     }
   });
-
-  const handleFavorite = async (giftId: string) => {
-    const { error } = await supabase
-      .from('gift_favorites')
-      .upsert({ gift_id: giftId });
-
-    if (error) {
-      toast.error("Failed to save favorite");
-      return;
-    }
-    toast.success("Added to favorites!");
-  };
 
   const handleQuickSend = async (giftId: string) => {
     // This will be connected to the gift sending system
@@ -120,13 +122,9 @@ const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps)
                       variant="outline"
                       size="icon"
                       className="bg-background/80 backdrop-blur-sm"
-                      onClick={() => handleFavorite(gift.id)}
+                      onClick={() => addToFavoritesMutation.mutate(gift.id)}
                     >
-                      <Heart
-                        className={`h-4 w-4 ${
-                          favorites.includes(gift.id) ? "fill-primary" : ""
-                        }`}
-                      />
+                      <Heart className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
