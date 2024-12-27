@@ -8,8 +8,16 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import NotFound from "./components/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => {
   return (
@@ -24,8 +32,8 @@ const App = () => {
                 <Route path="/" element={<Index />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
-                {/* Add a catch-all route that redirects to home */}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="/404" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
             </TooltipProvider>
           </AuthProvider>
