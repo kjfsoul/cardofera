@@ -67,7 +67,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
+  
       const { data, error } = await supabase
         .from("contacts")
         .insert({
@@ -77,11 +77,13 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
         })
         .select()
         .single();
-
+  
       if (error) throw error;
-
-      // Invalidate and refetch contacts
-      await queryClient.invalidateQueries(["contacts"]);
+  
+      // Correct way to invalidate queries
+      await queryClient.invalidateQueries({
+        queryKey: ['contacts']
+      });
       
       onChange(data.name);
       setIsAddingNew(false);
@@ -92,7 +94,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       toast.error("Failed to add contact");
     }
   };
-
+  
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
