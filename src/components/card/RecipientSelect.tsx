@@ -35,29 +35,40 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const { data: contacts = [], isLoading, error } = useQuery({
     queryKey: ["contacts"],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Please sign in to view contacts");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast.error("Please sign in to view contacts");
+          return [];
+        }
+
+        const { data, error } = await supabase
+          .from("contacts")
+          .select("*")
+          .eq("user_id", session.user.id);
+
+        if (error) {
+          console.error("Supabase error:", error);
+          toast.error("Failed to load contacts");
+          return [];
+        }
+
+        return (data || []) as Contact[];
+      } catch (err) {
+        console.error("Error fetching contacts:", err);
+        toast.error("Failed to load contacts");
         return [];
       }
-
-      const { data, error } = await supabase
-        .from("contacts")
-        .select("*")
-        .eq("user_id", session.user.id);
-
-      if (error) {
-        toast.error("Failed to load contacts");
-        throw error;
-      }
-
-      return (data || []) as Contact[];
     },
+    initialData: [], // Ensure we always have an array
+    refetchOnWindowFocus: false,
   });
 
   if (error) {
-    console.error("Error loading contacts:", error);
+    console.error("Query error:", error);
   }
+
+  const selectedContact = contacts.find((contact) => contact.name === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -68,11 +79,13 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? contacts.find((contact) => contact.name === value)?.name || value
-            : isLoading 
-              ? "Loading contacts..." 
-              : "Select recipient..."}
+          {isLoading ? (
+            "Loading contacts..."
+          ) : selectedContact ? (
+            selectedContact.name
+          ) : value || (
+            "Select recipient..."
+          )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -83,7 +96,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
             {isLoading ? "Loading..." : "No recipient found."}
           </CommandEmpty>
           <CommandGroup>
-            {contacts.map((contact) => (
+            {(contacts || []).map((contact) => (
               <CommandItem
                 key={contact.id}
                 value={contact.name}
