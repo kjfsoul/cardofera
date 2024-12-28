@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Command,
   CommandEmpty,
@@ -33,12 +34,14 @@ interface Contact {
 
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
+  const [isAddingNew, setIsAddingNew] = useState(false);
+  const [newContactName, setNewContactName] = useState("");
 
   const { data: contacts, isLoading, error } = useQuery({
     queryKey: ["contacts"],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
         toast.error("Please sign in to view contacts");
         return [];
       }
@@ -46,7 +49,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       const { data, error } = await supabase
         .from("contacts")
         .select("id, name, user_id, relationship, birthday")
-        .eq("user_id", session.user.id)
+        .eq("user_id", user.id)
         .order("name");
 
       if (error) {
@@ -60,6 +63,32 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
     retry: 1,
     staleTime: 30000,
   });
+
+  const handleAddNewContact = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("contacts")
+        .insert({
+          name: newContactName,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      onChange(data.name);
+      setIsAddingNew(false);
+      setNewContactName("");
+      setOpen(false);
+      toast.success("Contact added successfully!");
+    } catch (error) {
+      toast.error("Failed to add contact");
+    }
+  };
 
   const selectedContact = contacts?.find((contact) => contact.name === value);
 
@@ -83,8 +112,39 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
           <CommandEmpty>
             {isLoading ? (
               "Loading contacts..."
+            ) : isAddingNew ? (
+              <div className="p-2">
+                <Input
+                  placeholder="Enter contact name"
+                  value={newContactName}
+                  onChange={(e) => setNewContactName(e.target.value)}
+                  className="mb-2"
+                />
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={handleAddNewContact}
+                    disabled={!newContactName.trim()}
+                  >
+                    Add Contact
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setIsAddingNew(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
             ) : (
-              "No recipient found. Add a new contact?"
+              <Button
+                variant="ghost"
+                className="w-full p-2"
+                onClick={() => setIsAddingNew(true)}
+              >
+                Add new contact
+              </Button>
             )}
           </CommandEmpty>
           <CommandGroup>
