@@ -27,48 +27,41 @@ interface Contact {
   id: string;
   name: string;
   user_id: string;
+  relationship?: string;
+  birthday?: string;
 }
 
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
 
-  const { data: contacts = [], isLoading, error } = useQuery({
+  const { data: contacts, isLoading, error } = useQuery({
     queryKey: ["contacts"],
     queryFn: async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          toast.error("Please sign in to view contacts");
-          return [];
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please sign in to view contacts");
+        return [];
+      }
 
-        const { data, error } = await supabase
-          .from("contacts")
-          .select("*")
-          .eq("user_id", session.user.id);
+      const { data, error } = await supabase
+        .from("contacts")
+        .select("id, name, user_id, relationship, birthday")
+        .eq("user_id", session.user.id)
+        .order("name");
 
-        if (error) {
-          console.error("Supabase error:", error);
-          toast.error("Failed to load contacts");
-          return [];
-        }
-
-        return (data || []) as Contact[];
-      } catch (err) {
-        console.error("Error fetching contacts:", err);
+      if (error) {
         toast.error("Failed to load contacts");
         return [];
       }
+
+      return data || [];
     },
-    initialData: [], // Ensure we always have an array
-    refetchOnWindowFocus: false,
+    initialData: [],
+    retry: 1,
+    staleTime: 30000,
   });
 
-  if (error) {
-    console.error("Query error:", error);
-  }
-
-  const selectedContact = contacts.find((contact) => contact.name === value);
+  const selectedContact = contacts?.find((contact) => contact.name === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -78,14 +71,9 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
+          disabled={isLoading}
         >
-          {isLoading ? (
-            "Loading contacts..."
-          ) : selectedContact ? (
-            selectedContact.name
-          ) : value || (
-            "Select recipient..."
-          )}
+          {selectedContact?.name || "Select recipient..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -93,10 +81,14 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
         <Command>
           <CommandInput placeholder="Search recipients..." />
           <CommandEmpty>
-            {isLoading ? "Loading..." : "No recipient found."}
+            {isLoading ? (
+              "Loading contacts..."
+            ) : (
+              "No recipient found. Add a new contact?"
+            )}
           </CommandEmpty>
           <CommandGroup>
-            {(contacts || []).map((contact) => (
+            {contacts?.map((contact) => (
               <CommandItem
                 key={contact.id}
                 value={contact.name}
@@ -111,7 +103,12 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
                     value === contact.name ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {contact.name}
+                <span>{contact.name}</span>
+                {contact.relationship && (
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    ({contact.relationship})
+                  </span>
+                )}
               </CommandItem>
             ))}
           </CommandGroup>
