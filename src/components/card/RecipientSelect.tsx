@@ -9,6 +9,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -29,6 +30,8 @@ interface Contact {
   name: string;
   user_id: string;
   relationship: string;
+  birthday?: string;
+  preferred_categories?: string[];
 }
 
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
@@ -53,6 +56,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
         .order("name");
 
       if (error) {
+        console.error("Error fetching contacts:", error);
         toast.error("Failed to load contacts");
         return [];
       }
@@ -64,25 +68,30 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   });
 
   const handleAddNewContact = async () => {
+    if (!newContactName.trim()) return;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-  
+      if (!user) {
+        toast.error("Please sign in to add contacts");
+        return;
+      }
+
       const { data, error } = await supabase
         .from("contacts")
         .insert({
           name: newContactName,
           user_id: user.id,
-          relationship: "Friend"
+          relationship: "Friend",
+          preferred_categories: []
         })
         .select()
         .single();
-  
+
       if (error) throw error;
-  
-      // Correct way to invalidate queries
+
       await queryClient.invalidateQueries({
-        queryKey: ['contacts']
+        queryKey: ["contacts"]
       });
       
       onChange(data.name);
@@ -91,11 +100,11 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       setOpen(false);
       toast.success("Contact added successfully!");
     } catch (error) {
+      console.error("Error adding contact:", error);
       toast.error("Failed to add contact");
     }
   };
-  
-  
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -113,64 +122,79 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       <PopoverContent className="w-full p-0">
         <Command>
           <CommandInput placeholder="Search recipients..." />
-          <CommandEmpty>
-            {isLoading ? (
-              "Loading contacts..."
-            ) : isAddingNew ? (
-              <div className="p-2">
-                <Input
-                  placeholder="Enter contact name"
-                  value={newContactName}
-                  onChange={(e) => setNewContactName(e.target.value)}
-                  className="mb-2"
-                />
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    onClick={handleAddNewContact}
-                    disabled={!newContactName.trim()}
-                  >
-                    Add Contact
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => setIsAddingNew(false)}
-                  >
-                    Cancel
-                  </Button>
+          <CommandList>
+            <CommandEmpty>
+              {isLoading ? (
+                "Loading contacts..."
+              ) : isAddingNew ? (
+                <div className="p-2">
+                  <Input
+                    placeholder="Enter contact name"
+                    value={newContactName}
+                    onChange={(e) => setNewContactName(e.target.value)}
+                    className="mb-2"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleAddNewContact();
+                      }
+                    }}
+                  />
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      onClick={handleAddNewContact}
+                      disabled={!newContactName.trim()}
+                    >
+                      Add Contact
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsAddingNew(false);
+                        setNewContactName("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <Button
-                variant="ghost"
-                className="w-full p-2"
-                onClick={() => setIsAddingNew(true)}
-              >
-                Add new contact
-              </Button>
-            )}
-          </CommandEmpty>
-          <CommandGroup>
-            {contacts.map((contact) => (
-              <CommandItem
-                key={contact.id}
-                value={contact.name}
-                onSelect={(currentValue) => {
-                  onChange(currentValue === value ? "" : currentValue);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === contact.name ? "opacity-100" : "opacity-0"
+              ) : (
+                <Button
+                  variant="ghost"
+                  className="w-full p-2"
+                  onClick={() => setIsAddingNew(true)}
+                >
+                  Add new contact
+                </Button>
+              )}
+            </CommandEmpty>
+            <CommandGroup>
+              {contacts.map((contact) => (
+                <CommandItem
+                  key={contact.id}
+                  value={contact.name}
+                  onSelect={(currentValue) => {
+                    onChange(currentValue === value ? "" : currentValue);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === contact.name ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <span>{contact.name}</span>
+                  {contact.relationship && (
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      ({contact.relationship})
+                    </span>
                   )}
-                />
-                {contact.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
