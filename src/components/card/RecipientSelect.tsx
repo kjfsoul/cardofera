@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -28,16 +28,16 @@ interface Contact {
   id: string;
   name: string;
   user_id: string;
-  relationship?: string;
-  birthday?: string;
+  relationship: string;
 }
 
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newContactName, setNewContactName] = useState("");
+  const queryClient = useQueryClient();
 
-  const { data: contacts, isLoading, error } = useQuery({
+  const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -48,7 +48,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
 
       const { data, error } = await supabase
         .from("contacts")
-        .select("id, name, user_id, relationship, birthday")
+        .select("*")
         .eq("user_id", user.id)
         .order("name");
 
@@ -59,29 +59,30 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
 
       return data || [];
     },
-    initialData: [],
-    retry: 1,
-    staleTime: 30000,
+    staleTime: 1000,
+    refetchOnWindowFocus: true
   });
 
   const handleAddNewContact = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-  
+
       const { data, error } = await supabase
         .from("contacts")
         .insert({
           name: newContactName,
           user_id: user.id,
-          relationship: "Friend", // Add default relationship or add a relationship selector
-          preferred_categories: [] // Optional: Add default categories
+          relationship: "Friend"
         })
         .select()
         .single();
-  
+
       if (error) throw error;
-  
+
+      // Invalidate and refetch contacts
+      await queryClient.invalidateQueries(["contacts"]);
+      
       onChange(data.name);
       setIsAddingNew(false);
       setNewContactName("");
@@ -91,8 +92,6 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       toast.error("Failed to add contact");
     }
   };
-  
-  const selectedContact = contacts?.find((contact) => contact.name === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -104,7 +103,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
           className="w-full justify-between"
           disabled={isLoading}
         >
-          {selectedContact?.name || "Select recipient..."}
+          {value || "Select recipient..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -150,7 +149,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
             )}
           </CommandEmpty>
           <CommandGroup>
-            {contacts?.map((contact) => (
+            {contacts.map((contact) => (
               <CommandItem
                 key={contact.id}
                 value={contact.name}
@@ -165,12 +164,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
                     value === contact.name ? "opacity-100" : "opacity-0"
                   )}
                 />
-                <span>{contact.name}</span>
-                {contact.relationship && (
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    ({contact.relationship})
-                  </span>
-                )}
+                {contact.name}
               </CommandItem>
             ))}
           </CommandGroup>
