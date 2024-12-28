@@ -68,18 +68,20 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
+  
       const { data, error } = await supabase
         .from("contacts")
         .insert({
           name: newContactName,
-          user_id: user.id
+          user_id: user.id,
+          relationship: "Friend", // Add default relationship or add a relationship selector
+          preferred_categories: [] // Optional: Add default categories
         })
         .select()
         .single();
-
+  
       if (error) throw error;
-
+  
       onChange(data.name);
       setIsAddingNew(false);
       setNewContactName("");
@@ -89,7 +91,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       toast.error("Failed to add contact");
     }
   };
-
+  
   const selectedContact = contacts?.find((contact) => contact.name === value);
 
   return (
