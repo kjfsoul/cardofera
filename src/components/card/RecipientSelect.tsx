@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -25,15 +25,19 @@ interface RecipientSelectProps {
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
 
-  const { data: contacts, isLoading } = useQuery({
+  const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts"],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return [];
+
       const { data, error } = await supabase
         .from("contacts")
         .select("*")
-        .order("name");
+        .eq("user_id", session.user.id);
+
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 
@@ -47,7 +51,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
           className="w-full justify-between"
         >
           {value
-            ? contacts?.find((contact) => contact.name === value)?.name
+            ? contacts.find((contact) => contact.name === value)?.name || value
             : "Select recipient..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -57,7 +61,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
           <CommandInput placeholder="Search recipients..." />
           <CommandEmpty>No recipient found.</CommandEmpty>
           <CommandGroup>
-            {contacts?.map((contact) => (
+            {contacts.map((contact) => (
               <CommandItem
                 key={contact.id}
                 value={contact.name}
