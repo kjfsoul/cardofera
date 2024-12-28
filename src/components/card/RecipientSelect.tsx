@@ -12,6 +12,7 @@ import { RecipientSelectProps } from "@/types/contact";
 import { RecipientButton } from "./recipient/RecipientButton";
 import { RecipientList } from "./recipient/RecipientList";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
