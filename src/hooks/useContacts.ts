@@ -17,7 +17,6 @@ export const useContacts = () => {
         const { data, error } = await supabase
           .from("contacts")
           .select("*")
-          .eq("user_id", session.user.id)
           .order("name");
 
         if (error) {
