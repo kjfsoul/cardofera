@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface MessagePreviewProps {
   message: string;
