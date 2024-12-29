@@ -5,8 +5,8 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true,
     autoRefreshToken: true,
+    persistSession: true,
     detectSessionInUrl: true,
     flowType: 'pkce'
   },
@@ -14,5 +14,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     headers: {
       'apikey': supabaseAnonKey
     }
+  },
+  db: {
+    schema: 'public'
   }
 });
