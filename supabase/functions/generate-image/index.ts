@@ -1,7 +1,20 @@
 // supabase/functions/generate-image/index.ts
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// Add this type declaration at the top of the file
+declare global {
+  const Deno: {
+    env: {
+      get(key: string): string | undefined;
+    };
+  };
+}
+
+import { delay } from "@std/async";
+import { deepMerge } from "@std/collections";
+
+await delay(100);
+
+console.log(deepMerge({ foo: { bar: 1 }, baz: 2 }, { foo: { qux: 2 } }));
 
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 5;
@@ -97,3 +110,7 @@ serve(async (req) => {
     );
   }
 });
+function serve(arg0: (req: any) => Promise<Response>) {
+  throw new Error("Function not implemented.");
+}
+
