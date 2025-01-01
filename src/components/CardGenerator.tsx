@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
 import CardHeader from "./card/CardHeader";
 import CardGeneratorContent from "./card/CardGeneratorContent";
 import CardPreviewSection from "./card/CardPreviewSection";
@@ -7,11 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { CardDelivery } from "./card/CardDelivery";
 import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
+import type { CardData } from "./card/CardGeneratorContent";
 
 const CardGenerator = () => {
   const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
-  const [cardData, setCardData] = useState({
+  const [cardData, setCardData] = useState<CardData>({
     recipientName: "",
     occasion: "birthday",
     message: "",

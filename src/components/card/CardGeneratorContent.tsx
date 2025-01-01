@@ -14,6 +14,7 @@ export interface CardData {
   message: string;
   style: string;
   deliveryMethod: string;
+  recipientEmail: string;
 }
 
 export interface CardGeneratorContentProps {
