@@ -1,19 +1,25 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
 import CardHeader from "./card/CardHeader";
 import CardGeneratorContent from "./card/CardGeneratorContent";
 import CardPreviewSection from "./card/CardPreviewSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { CardDelivery } from "./card/CardDelivery";
+import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
+import type { CardData } from "./card/CardGeneratorContent";
 
 const CardGenerator = () => {
   const navigate = useNavigate();
-  const [cardData, setCardData] = useState({
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardData, setCardData] = useState<CardData>({
     recipientName: "",
     occasion: "birthday",
     message: "",
     style: "modern",
     deliveryMethod: "email",
+    recipientEmail: "",
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -64,16 +70,19 @@ const CardGenerator = () => {
       // Generate card image if none selected
       if (!selectedImage) {
         const { data, error } = await supabase.functions.invoke('generate-image', {
-          body: { prompt: `${cardData.occasion} card with message: ${cardData.message}` }
+          body: { 
+            prompt: `${cardData.occasion} card with message: ${cardData.message}`,
+            apiUrl: `${window.location.origin}/api/generate-image`
+          }
         });
 
         if (error) throw error;
-        if (data.image) {
+        if (data?.image) {
           setSelectedImage(data.image);
         }
       }
 
-      // Save card data with user_id to contacts table instead
+      // Save card data with user_id to contacts table
       const { data: cardRecord, error: saveError } = await supabase
         .from('contacts')
         .insert([
@@ -115,13 +124,27 @@ const CardGenerator = () => {
           generationError={generationError}
         />
 
-        <div className="lg:sticky lg:top-6">
-          <CardPreviewSection
-            selectedImage={selectedImage}
-            cardMessage={cardData.message}
-            isSoundEnabled={isSoundEnabled}
-            isGenerating={isGenerating}
-          />
+        <div className="space-y-6">
+          <div className="lg:sticky lg:top-6">
+            <CardPreviewSection
+              selectedImage={selectedImage}
+              cardMessage={cardData.message}
+              isSoundEnabled={isSoundEnabled}
+              isGenerating={isGenerating}
+            />
+            
+            {selectedImage && !isGenerating && (
+              <Card className="mt-4 p-4">
+                <CardDelivery
+                  cardRef={cardRef}
+                  recipientEmail={cardData.recipientEmail}
+                  message={cardData.message}
+                />
+              </Card>
+            )}
+          </div>
+
+          <CardDeliveryTracker />
         </div>
       </div>
     </div>

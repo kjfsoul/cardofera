@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      card_deliveries: {
+        Row: {
+          card_image: string
+          created_at: string | null
+          id: string
+          message: string
+          recipient_email: string
+          scheduled_date: string | null
+          sent_date: string | null
+          status: Database["public"]["Enums"]["card_delivery_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          card_image: string
+          created_at?: string | null
+          id?: string
+          message: string
+          recipient_email: string
+          scheduled_date?: string | null
+          sent_date?: string | null
+          status?: Database["public"]["Enums"]["card_delivery_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          card_image?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          recipient_email?: string
+          scheduled_date?: string | null
+          sent_date?: string | null
+          status?: Database["public"]["Enums"]["card_delivery_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           birthday: string | null
@@ -259,7 +298,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      card_delivery_status: "pending" | "scheduled" | "sent" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
