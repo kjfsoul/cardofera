@@ -122,10 +122,41 @@ export type Database = {
           },
         ]
       }
+      gift_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          interests: string[] | null
+          max_budget: number | null
+          min_budget: number | null
+          style: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          interests?: string[] | null
+          max_budget?: number | null
+          min_budget?: number | null
+          style?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          interests?: string[] | null
+          max_budget?: number | null
+          min_budget?: number | null
+          style?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       gift_recommendations: {
         Row: {
           category: string
           created_at: string | null
+          delivery_status: string | null
           description: string
           id: string
           image_url: string | null
@@ -135,6 +166,7 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string | null
+          delivery_status?: string | null
           description: string
           id?: string
           image_url?: string | null
@@ -144,6 +176,7 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string | null
+          delivery_status?: string | null
           description?: string
           id?: string
           image_url?: string | null

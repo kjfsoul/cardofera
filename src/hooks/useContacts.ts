@@ -10,7 +10,6 @@ export const useContacts = () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-          toast.error("Please sign in to view contacts");
           return [];
         }
 
@@ -21,17 +20,17 @@ export const useContacts = () => {
 
         if (error) {
           console.error("Error fetching contacts:", error);
-          toast.error("Failed to load contacts");
-          return [];
+          throw error;
         }
 
         return data as Contact[] || [];
       } catch (err) {
         console.error("Error in contacts query:", err);
-        toast.error("Failed to load contacts");
-        return [];
+        throw err;
       }
     },
     initialData: [],
+    retry: 1,
+    staleTime: 30000, // Cache for 30 seconds
   });
 };

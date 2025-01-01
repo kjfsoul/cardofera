@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Command, CommandInput, CommandList } from "@/components/ui/command";
 import {
   Popover,
@@ -18,9 +18,18 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newContactName, setNewContactName] = useState("");
+  const [isManualEntry, setIsManualEntry] = useState(false);
+  const [manualRecipient, setManualRecipient] = useState("");
 
-  const { data: contacts = [], isLoading } = useContacts();
+  const { data: contacts = [], isLoading, error } = useContacts();
   const selectedContact = contacts.find((contact) => contact.name === value);
+
+  useEffect(() => {
+    if (error) {
+      console.error("Error loading contacts:", error);
+      toast.error("Failed to load contacts. Please check your authentication.");
+    }
+  }, [error]);
 
   const handleAddNewContact = async () => {
     if (!newContactName.trim()) return;
@@ -32,7 +41,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error: insertError } = await supabase
         .from("contacts")
         .insert({
           name: newContactName,
@@ -42,7 +51,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
       onChange(data.name);
       setIsAddingNew(false);
@@ -51,7 +60,16 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       toast.success("Contact added successfully!");
     } catch (error) {
       console.error("Error adding contact:", error);
-      toast.error("Failed to add contact");
+      toast.error("Failed to add contact. Please try again.");
+    }
+  };
+
+  const handleManualEntry = () => {
+    if (manualRecipient.trim()) {
+      onChange(manualRecipient);
+      setOpen(false);
+      setManualRecipient("");
+      setIsManualEntry(false);
     }
   };
 
@@ -67,7 +85,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search recipients..." />
+          <CommandInput placeholder="Search recipients or enter manually..." />
           <CommandList>
             {isAddingNew ? (
               <div className="p-2">
@@ -102,14 +120,67 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
                   </Button>
                 </div>
               </div>
+            ) : isManualEntry ? (
+              <div className="p-2">
+                <Input
+                  placeholder="Enter recipient name"
+                  value={manualRecipient}
+                  onChange={(e) => setManualRecipient(e.target.value)}
+                  className="mb-2"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleManualEntry();
+                    }
+                  }}
+                />
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    onClick={handleManualEntry}
+                    disabled={!manualRecipient.trim()}
+                  >
+                    Use Name
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsManualEntry(false);
+                      setManualRecipient("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
             ) : (
-              <RecipientList
-                isLoading={isLoading}
-                contacts={contacts}
-                value={value}
-                onSelect={onChange}
-                onOpenChange={setOpen}
-              />
+              <>
+                <RecipientList
+                  isLoading={isLoading}
+                  contacts={contacts}
+                  value={value}
+                  onSelect={onChange}
+                  onOpenChange={setOpen}
+                />
+                <div className="p-2 border-t flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setIsAddingNew(true)}
+                    className="flex-1"
+                  >
+                    Add New Contact
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => setIsManualEntry(true)}
+                    className="flex-1"
+                  >
+                    Enter Manually
+                  </Button>
+                </div>
+              </>
             )}
           </CommandList>
         </Command>
