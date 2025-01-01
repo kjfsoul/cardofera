@@ -64,16 +64,19 @@ const CardGenerator = () => {
       // Generate card image if none selected
       if (!selectedImage) {
         const { data, error } = await supabase.functions.invoke('generate-image', {
-          body: { prompt: `${cardData.occasion} card with message: ${cardData.message}` }
+          body: { 
+            prompt: `${cardData.occasion} card with message: ${cardData.message}`,
+            apiUrl: `${window.location.origin}/api/generate-image`
+          }
         });
 
         if (error) throw error;
-        if (data.image) {
+        if (data?.image) {
           setSelectedImage(data.image);
         }
       }
 
-      // Save card data with user_id to contacts table instead
+      // Save card data with user_id to contacts table
       const { data: cardRecord, error: saveError } = await supabase
         .from('contacts')
         .insert([
