@@ -1,20 +1,6 @@
-// supabase/functions/generate-image/index.ts
-
-// Add this type declaration at the top of the file
-declare global {
-  const Deno: {
-    env: {
-      get(key: string): string | undefined;
-    };
-  };
-}
-
+// Follow Deno conventions for imports
 import { delay } from "@std/async";
 import { deepMerge } from "@std/collections";
-
-await delay(100);
-
-console.log(deepMerge({ foo: { bar: 1 }, baz: 2 }, { foo: { qux: 2 } }));
 
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 5;
@@ -60,6 +46,8 @@ serve(async (req) => {
     if (!huggingFaceToken) {
       throw new Error('HuggingFace API key not configured');
     }
+
+    console.log('Generating image with prompt:', prompt);
 
     const response = await fetch(
       'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2',
@@ -110,7 +98,3 @@ serve(async (req) => {
     );
   }
 });
-function serve(arg0: (req: any) => Promise<Response>) {
-  throw new Error("Function not implemented.");
-}
-
