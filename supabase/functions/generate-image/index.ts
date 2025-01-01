@@ -18,13 +18,13 @@ serve(async (req) => {
   }
 
   try {
-    const huggingFaceToken = Deno.env.get('HUGGINGFACE_API_KEY');
+    const huggingFaceToken = Deno.env.get('HUGGING_FACE');
     if (!huggingFaceToken) {
       console.error('HuggingFace API key not configured');
       return new Response(
         JSON.stringify({
           error: 'Configuration Error',
-          details: 'HuggingFace API key not configured. Please set up the HUGGINGFACE_API_KEY in Supabase secrets.'
+          details: 'HuggingFace API key not configured. Please set up the HUGGING_FACE secret in Supabase secrets.'
         }),
         {
           status: 500,
