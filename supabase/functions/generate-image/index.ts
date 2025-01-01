@@ -1,6 +1,5 @@
 // Follow Deno conventions for imports
-import { delay } from "@std/async";
-import { deepMerge } from "@std/collections";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 5;
