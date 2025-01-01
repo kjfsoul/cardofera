@@ -14,14 +14,23 @@ const corsHeaders = {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const huggingFaceToken = Deno.env.get('HUGGINGFACE_API_KEY');
     if (!huggingFaceToken) {
       console.error('HuggingFace API key not configured');
-      throw new Error('HuggingFace API key not configured');
+      return new Response(
+        JSON.stringify({
+          error: 'Configuration Error',
+          details: 'HuggingFace API key not configured. Please set up the HUGGINGFACE_API_KEY in Supabase secrets.'
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     const now = Date.now();
@@ -75,7 +84,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Failed to generate image',
-        details: 'Failed to generate image'
+        details: 'An error occurred while generating the image. Please try again.'
       }),
       {
         status: 500,
