@@ -1,19 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import CardHeader from "./card/CardHeader";
 import CardGeneratorContent from "./card/CardGeneratorContent";
 import CardPreviewSection from "./card/CardPreviewSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { CardDelivery } from "./card/CardDelivery";
+import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
 
 const CardGenerator = () => {
   const navigate = useNavigate();
+  const cardRef = useRef<HTMLDivElement>(null);
   const [cardData, setCardData] = useState({
     recipientName: "",
     occasion: "birthday",
     message: "",
     style: "modern",
     deliveryMethod: "email",
+    recipientEmail: "",
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -118,13 +122,27 @@ const CardGenerator = () => {
           generationError={generationError}
         />
 
-        <div className="lg:sticky lg:top-6">
-          <CardPreviewSection
-            selectedImage={selectedImage}
-            cardMessage={cardData.message}
-            isSoundEnabled={isSoundEnabled}
-            isGenerating={isGenerating}
-          />
+        <div className="space-y-6">
+          <div className="lg:sticky lg:top-6">
+            <CardPreviewSection
+              selectedImage={selectedImage}
+              cardMessage={cardData.message}
+              isSoundEnabled={isSoundEnabled}
+              isGenerating={isGenerating}
+            />
+            
+            {selectedImage && !isGenerating && (
+              <Card className="mt-4 p-4">
+                <CardDelivery
+                  cardRef={cardRef}
+                  recipientEmail={cardData.recipientEmail}
+                  message={cardData.message}
+                />
+              </Card>
+            )}
+          </div>
+
+          <CardDeliveryTracker />
         </div>
       </div>
     </div>
