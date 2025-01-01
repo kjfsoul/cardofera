@@ -1,5 +1,5 @@
-// Follow Deno conventions for imports
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
 
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 5;
@@ -12,11 +12,18 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
+    const huggingFaceToken = Deno.env.get('HUGGINGFACE_API_KEY');
+    if (!huggingFaceToken) {
+      console.error('HuggingFace API key not configured');
+      throw new Error('HuggingFace API key not configured');
+    }
+
     const now = Date.now();
     if (now - lastRequestTime > RATE_LIMIT_WINDOW) {
       requestCount = 0;
@@ -40,32 +47,15 @@ serve(async (req) => {
     requestCount++;
 
     const { prompt } = await req.json();
-    const huggingFaceToken = Deno.env.get('HUGGINGFACE_API_KEY');
-
-    if (!huggingFaceToken) {
-      throw new Error('HuggingFace API key not configured');
-    }
-
     console.log('Generating image with prompt:', prompt);
 
-    const response = await fetch(
-      'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2',
-      {
-        headers: { 
-          Authorization: `Bearer ${huggingFaceToken}`,
-          'Content-Type': 'application/json'
-        },
-        method: 'POST',
-        body: JSON.stringify({ inputs: prompt })
-      }
-    );
+    const hf = new HfInference(huggingFaceToken);
+    const image = await hf.textToImage({
+      inputs: prompt,
+      model: 'stabilityai/stable-diffusion-2',
+    });
 
-    if (!response.ok) {
-      throw new Error(`HuggingFace API error: ${response.statusText}`);
-    }
-
-    const imageBlob = await response.blob();
-    const arrayBuffer = await imageBlob.arrayBuffer();
+    const arrayBuffer = await image.arrayBuffer();
     const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
 
     return new Response(
@@ -84,7 +74,7 @@ serve(async (req) => {
     
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: error.message || 'Failed to generate image',
         details: 'Failed to generate image'
       }),
       {
