@@ -6,9 +6,10 @@ interface CardPreview3DProps {
   imageUrl?: string;
   text?: string;
   enableSound?: boolean;
+  style?: string; // Added this prop
 }
 
-const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DProps) => {
+const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }: CardPreview3DProps) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -62,17 +63,47 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
     fillLight.position.set(-5, 0, 5);
     scene.add(fillLight);
 
+    // Get card material based on style
+    const getMaterialByStyle = (style: string) => {
+      const baseMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        metalness: 0.1,
+        roughness: 0.2,
+        reflectivity: 0.5,
+        clearcoat: 0.3,
+        clearcoatRoughness: 0.2,
+        side: THREE.DoubleSide,
+      });
+
+      switch (style) {
+        case 'classic':
+          baseMaterial.color = new THREE.Color(0xf5e6d3);
+          baseMaterial.metalness = 0.05;
+          baseMaterial.roughness = 0.4;
+          break;
+        case 'playful':
+          baseMaterial.color = new THREE.Color(0xffffff);
+          baseMaterial.metalness = 0.2;
+          baseMaterial.roughness = 0.1;
+          baseMaterial.clearcoat = 0.5;
+          break;
+        case 'elegant':
+          baseMaterial.color = new THREE.Color(0xf0f0f0);
+          baseMaterial.metalness = 0.3;
+          baseMaterial.roughness = 0.1;
+          baseMaterial.clearcoat = 0.8;
+          break;
+        default: // modern
+          // Keep default values
+          break;
+      }
+
+      return baseMaterial;
+    };
+
     // Enhanced card material
     const geometry = new THREE.BoxGeometry(3, 4, 0.1);
-    const material = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.1,
-      roughness: 0.2,
-      reflectivity: 0.5,
-      clearcoat: 0.3,
-      clearcoatRoughness: 0.2,
-      side: THREE.DoubleSide,
-    });
+    const material = getMaterialByStyle(style);
     
     const card = new THREE.Mesh(geometry, material);
     card.castShadow = true;
@@ -143,7 +174,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
       }
       scene.clear();
     };
-  }, [enableSound]);
+  }, [enableSound, style]);
 
   // Update texture when image changes
   useEffect(() => {
