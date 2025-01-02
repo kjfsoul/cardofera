@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { CardDelivery } from "./card/CardDelivery";
 import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
-import type { CardData } from "./card/CardGeneratorContent";
+import type { CardData } from "@/types/card";
 
 const CardGenerator = () => {
   const navigate = useNavigate();
@@ -20,6 +20,9 @@ const CardGenerator = () => {
     style: "modern",
     deliveryMethod: "email",
     recipientEmail: "",
+    textPosition: "center",
+    fontSize: 24,
+    fontFamily: "Inter"
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -29,7 +32,6 @@ const CardGenerator = () => {
   const [generationError, setGenerationError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check authentication status
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
@@ -44,8 +46,8 @@ const CardGenerator = () => {
     let completed = 0;
     if (cardData.recipientName) completed++;
     if (cardData.message) completed++;
-    if (selectedImage) completed++;
     if (cardData.style !== "modern") completed++;
+    if (selectedImage) completed++;
     setProgress((completed / 4) * 100);
   }, [cardData, selectedImage]);
 
@@ -59,7 +61,6 @@ const CardGenerator = () => {
     setGenerationError(null);
 
     try {
-      // Get current user
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Please sign in to create cards");
@@ -67,7 +68,6 @@ const CardGenerator = () => {
         return;
       }
 
-      // Generate card image if none selected
       if (!selectedImage) {
         const { data, error } = await supabase.functions.invoke('generate-image', {
           body: { 
@@ -82,7 +82,6 @@ const CardGenerator = () => {
         }
       }
 
-      // Save card data with user_id to contacts table
       const { data: cardRecord, error: saveError } = await supabase
         .from('contacts')
         .insert([
@@ -131,6 +130,10 @@ const CardGenerator = () => {
               cardMessage={cardData.message}
               isSoundEnabled={isSoundEnabled}
               isGenerating={isGenerating}
+              cardStyle={cardData.style}
+              textPosition={cardData.textPosition}
+              fontSize={cardData.fontSize}
+              fontFamily={cardData.fontFamily}
             />
             
             {selectedImage && !isGenerating && (
