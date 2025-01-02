@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { CardDelivery } from "./card/CardDelivery";
 import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
+import { trackEvent } from "@/utils/analytics";
 import type { CardData } from "@/types/card";
 
 const CardGenerator = () => {
@@ -82,19 +83,26 @@ const CardGenerator = () => {
         }
       }
 
+      // Save card and track analytics
       const { data: cardRecord, error: saveError } = await supabase
-        .from('contacts')
+        .from('card_deliveries')
         .insert([
           {
-            name: cardData.recipientName,
-            relationship: cardData.occasion,
-            user_id: session.user.id,
+            recipient_email: cardData.recipientEmail,
+            card_image: selectedImage,
+            message: cardData.message,
+            status: 'pending'
           }
         ])
         .select()
         .single();
 
       if (saveError) throw saveError;
+
+      await trackEvent("card_created", cardRecord.id, {
+        occasion: cardData.occasion,
+        style: cardData.style
+      });
 
       toast.success("Card generated successfully!");
     } catch (error) {
