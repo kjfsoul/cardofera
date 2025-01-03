@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postinstall": "\"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"node_modules/esbuild/install.js\" && \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"node_modules/deno/install.cjs\""
+    "postinstall": "node node_modules/esbuild/install.js && node node_modules/deno/install.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

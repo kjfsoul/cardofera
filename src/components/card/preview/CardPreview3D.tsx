@@ -10,9 +10,17 @@ interface CardPreview3DProps {
   imageUrl?: string;
   text?: string;
   enableSound?: boolean;
+  style?: string;
+  onError?: () => void;
 }
 
-const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DProps) => {
+const CardPreview3D = ({ 
+  imageUrl, 
+  text, 
+  enableSound = false,
+  style = 'modern',
+  onError
+}: CardPreview3DProps) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { sceneRef, cameraRef, rendererRef, cardRef } = useThreeScene(mountRef);
@@ -22,13 +30,58 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
 
     // Card mesh setup
     const geometry = new THREE.BoxGeometry(3, 4, 0.1);
+    const getMaterialProperties = () => {
+      switch (style) {
+        case 'modern':
+          return {
+            color: 0xffffff,
+            metalness: 0.1,
+            roughness: 0.2,
+            reflectivity: 0.5,
+            clearcoat: 0.3,
+            clearcoatRoughness: 0.2
+          };
+        case 'classic':
+          return {
+            color: 0xfaf3e0,
+            metalness: 0.05,
+            roughness: 0.3,
+            reflectivity: 0.4,
+            clearcoat: 0.2,
+            clearcoatRoughness: 0.3
+          };
+        case 'playful':
+          return {
+            color: 0xff9a9e,
+            metalness: 0,
+            roughness: 0.4,
+            reflectivity: 0.3,
+            clearcoat: 0.1,
+            clearcoatRoughness: 0.4
+          };
+        case 'elegant':
+          return {
+            color: 0xf8f8f8,
+            metalness: 0.15,
+            roughness: 0.15,
+            reflectivity: 0.6,
+            clearcoat: 0.4,
+            clearcoatRoughness: 0.15
+          };
+        default:
+          return {
+            color: 0xffffff,
+            metalness: 0.1,
+            roughness: 0.2,
+            reflectivity: 0.5,
+            clearcoat: 0.3,
+            clearcoatRoughness: 0.2
+          };
+      }
+    };
+
     const material = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.1,
-      roughness: 0.2,
-      reflectivity: 0.5,
-      clearcoat: 0.3,
-      clearcoatRoughness: 0.2,
+      ...getMaterialProperties(),
       side: THREE.DoubleSide,
     });
 
@@ -80,6 +133,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
     if (enableSound && audioRef.current) {
       audioRef.current.play().catch(() => {
         toast.error("Unable to play sound. Please check your browser settings.");
+        onError?.();
       });
     }
   };
@@ -96,7 +150,11 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false }: CardPreview3DPro
         <>
           <CardLighting scene={sceneRef.current} />
           {cardRef.current && (
-            <CardMaterial mesh={cardRef.current} imageUrl={imageUrl} />
+            <CardMaterial 
+              mesh={cardRef.current} 
+              imageUrl={imageUrl}
+              style={style}
+            />
           )}
           {cardRef.current && rendererRef.current && sceneRef.current && cameraRef.current && (
             <CardAnimation
