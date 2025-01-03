@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           id: supabaseUser.id,
           email: supabaseUser.email!,
           name: supabaseUser.user_metadata?.name
-                });
+        });
       }
       setLoading(false);
     };
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-          toast.error(\`Failed to sign in: \${error.message}\`)
+        toast.error(\`Failed to sign in: \${error.message}\`);
         return false;
       }
       if (data?.user) {
@@ -68,14 +68,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           id: data.user.id,
           email: data.user.email!,
           name: data.user.user_metadata?.name
-                });
+        });
         toast.success("Successfully signed in!");
         navigate("/");
         return true;
       }
       return false;
     } catch (error: any) {
-      toast.error(\`Failed to sign in: \${error.message}\`)
+      toast.error(\`Failed to sign in: \${error.message}\`);
       return false;
     }
   };
@@ -96,8 +96,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
       if (error) {
-        toast.error(\`Failed to sign up: \${error.message}\`)
-                return false;
+        toast.error(\`Failed to sign up: \${error.message}\`);
+        return false;
       }
       if (data?.user) {
         setUser({
@@ -111,8 +111,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       return false;
     } catch (error: any) {
-      toast.error(\`Failed to sign up: \${error.message}\`)
-            return false;
+      toast.error(\`Failed to sign up: \${error.message}\`);
+      return false;
     }
   };
 
@@ -132,20 +132,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
       if (error) {
-        toast.error(\`Failed to update profile: \${error.message}\`)
-                return false;
+        toast.error(\`Failed to update profile: \${error.message}\`);
+        return false;
       }
       if (updatedUser) {
         setUser({
           ...user,
           ...data,
-          name: updatedUser?.user_metadata?.name                });
+          name: updatedUser?.user_metadata?.name
+        });
         toast.success("Profile updated successfully!");
         return true;
       }
       return false;
     } catch (error: any) {
-      toast.error(\`Failed to update profile: \${error.message}\`)
+      toast.error(\`Failed to update profile: \${error.message}\`);
       return false;
     }
   };
@@ -165,7 +166,7 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}
+};
 `;
 const fixedCode = code;
 const data = { fixedCode };
