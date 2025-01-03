@@ -4,5 +4,12 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"continue.enableDebugLogs": true
+	},
+	"extensions": {
+		"recommendations": [
+			"continue.continue"
+		]
+	}
 }
