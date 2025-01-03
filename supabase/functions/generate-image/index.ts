@@ -1,36 +1,27 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
+import express from 'express';
+import { HfInference } from '@huggingface/inference';
+import cors from 'cors';
+
+const app = express();
+const port = 3000;
 
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS = 5;
 let lastRequestTime = 0;
 let requestCount = 0;
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+app.use(cors());
+app.use(express.json());
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
+app.post('/generate-image', async (req, res) => {
   try {
-    const huggingFaceToken = Deno.env.get('HUGGING_FACE');
+    const huggingFaceToken = process.env.HUGGING_FACE;
     if (!huggingFaceToken) {
       console.error('HuggingFace API key not configured');
-      return new Response(
-        JSON.stringify({
-          error: 'Configuration Error',
-          details: 'HuggingFace API key not configured. Please set up the HUGGING_FACE secret in Supabase secrets.'
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      return res.status(500).json({
+        error: 'Configuration Error',
+        details: 'HuggingFace API key not configured. Please set up the HUGGING_FACE environment variable.'
+      });
     }
 
     const now = Date.now();
@@ -40,22 +31,16 @@ serve(async (req) => {
     }
 
     if (requestCount >= MAX_REQUESTS) {
-      return new Response(
-        JSON.stringify({
-          error: 'Rate limit reached',
-          details: 'Please wait a minute before trying again',
-          retryAfter: 60
-        }),
-        {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      return res.status(429).json({
+        error: 'Rate limit reached',
+        details: 'Please wait a minute before trying again',
+        retryAfter: 60
+      });
     }
 
     requestCount++;
 
-    const { prompt } = await req.json();
+    const { prompt } = req.body;
     console.log('Generating image with prompt:', prompt);
 
     const hf = new HfInference(huggingFaceToken);
@@ -65,34 +50,18 @@ serve(async (req) => {
     });
 
     const arrayBuffer = await image.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
 
-    return new Response(
-      JSON.stringify({ image: `data:image/png;base64,${base64}` }),
-      {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=3600'
-        }
-      }
-    );
-
+    return res.json({ image: `data:image/png;base64,${base64}` });
   } catch (error) {
     console.error('Error generating image:', error);
-    
-    return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to generate image',
-        details: 'An error occurred while generating the image. Please try again.'
-      }),
-      {
-        status: 500,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    return res.status(500).json({
+      error: error.message || 'Failed to generate image',
+      details: 'An error occurred while generating the image. Please try again.'
+    });
   }
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });
