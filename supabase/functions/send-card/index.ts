@@ -1,35 +1,32 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+const code2 = `
+const http = require('http');
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+};
 
-interface CardDeliveryRequest {
-  recipientEmail: string;
-  cardImage: string;
-  message: string;
-  scheduledDate?: string;
-  userId: string;
-}
-
-serve(async (req) => {
-  // Handle CORS preflight requests
+const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    res.writeHead(200, corsHeaders);
+    res.end();
+    return;
   }
 
   try {
-    const { recipientEmail, cardImage, message, scheduledDate, userId } = await req.json() as CardDeliveryRequest
+    let body = '';
+    for await (const chunk of req) {
+      body += chunk;
+    }
+    const { recipientEmail, cardImage, message, scheduledDate, userId } = JSON.parse(body);
 
-    // Initialize Supabase client
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY
+    );
 
-    // Store delivery record
     const { data: deliveryRecord, error: deliveryError } = await supabaseAdmin
       .from('card_deliveries')
       .insert({
@@ -38,28 +35,29 @@ serve(async (req) => {
         message,
         scheduled_date: scheduledDate,
         user_id: userId,
-        status: scheduledDate ? 'scheduled' : 'sent'
+        status: scheduledDate ? 'scheduled' : 'sent',
       })
       .select()
-      .single()
+      .single();
 
-    if (deliveryError) throw deliveryError
+    if (deliveryError) throw deliveryError;
 
-    // If no scheduled date, send immediately
     if (!scheduledDate) {
-      // TODO: Implement email sending logic with your preferred email service
-      console.log('Sending email to:', recipientEmail)
+      console.log('Sending email to:', recipientEmail);
     }
 
-    return new Response(
-      JSON.stringify({ success: true, delivery: deliveryRecord }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    res.writeHead(200, { ...corsHeaders, 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ success: true, delivery: deliveryRecord }));
   } catch (error) {
-    console.error('Error:', error)
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-    )
+    console.error('Error:', error);
+    res.writeHead(400, { ...corsHeaders, 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: error.message }));
   }
-})
+});
+
+const port = 8000;
+server.listen(port, () => {
+  console.log(\`Server running at http://localhost:\${port}/\`);
+});
+`;
+const data2 = { code2 };

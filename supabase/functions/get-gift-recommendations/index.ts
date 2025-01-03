@@ -1,18 +1,24 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+const code1 = `
+const http = require('http');
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-serve(async (req) => {
+const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    res.writeHead(200, corsHeaders);
+    res.end();
+    return;
   }
 
   try {
-    const { quizState } = await req.json();
+    let body = '';
+    for await (const chunk of req) {
+      body += chunk;
+    }
+    const { quizState } = JSON.parse(body);
 
     // Here you would integrate with external APIs like Amazon or Etsy
     // For now, we'll return mock recommendations
@@ -31,20 +37,17 @@ serve(async (req) => {
       }
     ];
 
-    return new Response(
-      JSON.stringify({ recommendations: mockRecommendations }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      }
-    );
+    res.writeHead(200, { ...corsHeaders, "Content-Type": "application/json" });
+    res.end(JSON.stringify({ recommendations: mockRecommendations }));
   } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      }
-    );
+    res.writeHead(400, { ...corsHeaders, "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: error.message }));
   }
 });
+
+const port = 8000;
+server.listen(port, () => {
+  console.log(\`Server running at http://localhost:\${port}/\`);
+});
+`;
+const data1 = { code1 };
