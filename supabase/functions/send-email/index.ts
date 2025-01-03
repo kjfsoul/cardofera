@@ -1,14 +1,26 @@
-const code4 = `
-const http = require('http');
-const fetch = require('node-fetch');
-require('dotenv').config();
+import http from 'http';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+if (!RESEND_API_KEY) {
+  throw new Error('RESEND_API_KEY is not defined in the environment variables.');
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+interface EmailRequest {
+  to: string;
+  subject: string;
+  html: string;
+  cardImage: string;
+}
 
 const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") {
@@ -22,13 +34,13 @@ const server = http.createServer(async (req, res) => {
     for await (const chunk of req) {
       body += chunk;
     }
-    const emailRequest = JSON.parse(body);
+    const emailRequest: EmailRequest = JSON.parse(body);
 
     const apiResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: \`Bearer \${RESEND_API_KEY}\`,
+        Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
         from: "BirthdayGen <birthday@resend.dev>",
@@ -51,15 +63,13 @@ const server = http.createServer(async (req, res) => {
     const data = await apiResponse.json();
     res.writeHead(200, { ...corsHeaders, "Content-Type": "application/json" });
     res.end(JSON.stringify(data));
-  } catch (error) {
+  } catch (error: any) {
     res.writeHead(400, { ...corsHeaders, "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: error.message }));
+    res.end(JSON.stringify({ error: error.message || "An error occurred" }));
   }
 });
 
 const port = 8000;
 server.listen(port, () => {
-  console.log(\`Server running at http://localhost:\${port}/\`);
+  console.log(`Server running at http://localhost:${port}/`);
 });
-`;
-const data4 = { code4 };

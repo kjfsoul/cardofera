@@ -1,8 +1,8 @@
-const code = `
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js"; // Import User type from Supabase
+import { supabase } from "@/integrations/supabase/client"; // Import your Supabase client
 
 interface GiftPreferences {
   giftTypes: string[];
@@ -13,7 +13,7 @@ interface GiftPreferences {
   interests: string[];
 }
 
-interface User {
+interface AppUser {
   id: string;
   email: string;
   name?: string;
@@ -21,18 +21,18 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string, name: string) => Promise<boolean>;
   signOut: () => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<boolean>;
+  updateProfile: (data: Partial<AppUser>) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({
           id: supabaseUser.id,
           email: supabaseUser.email!,
-          name: supabaseUser.user_metadata?.name
+          name: (supabaseUser as any).user_metadata?.name || "", // Safely access user_metadata
         });
       }
       setLoading(false);
@@ -60,14 +60,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        toast.error(\`Failed to sign in: \${error.message}\`);
+        toast.error(`Failed to sign in: ${error.message}`);
         return false;
       }
       if (data?.user) {
         setUser({
           id: data.user.id,
           email: data.user.email!,
-          name: data.user.user_metadata?.name
+          name: (data.user as any).user_metadata?.name || "", // Safely access user_metadata
         });
         toast.success("Successfully signed in!");
         navigate("/");
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       return false;
     } catch (error: any) {
-      toast.error(\`Failed to sign in: \${error.message}\`);
+      toast.error(`Failed to sign in: ${error.message}`);
       return false;
     }
   };
@@ -96,14 +96,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
       if (error) {
-        toast.error(\`Failed to sign up: \${error.message}\`);
+        toast.error(`Failed to sign up: ${error.message}`);
         return false;
       }
       if (data?.user) {
         setUser({
           id: data.user.id,
           email: data.user.email!,
-          name: data.user.user_metadata?.name,
+          name: (data.user as any).user_metadata?.name || "", // Safely access user_metadata
         });
         toast.success("Successfully signed up!");
         navigate("/");
@@ -111,7 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       return false;
     } catch (error: any) {
-      toast.error(\`Failed to sign up: \${error.message}\`);
+      toast.error(`Failed to sign up: ${error.message}`);
       return false;
     }
   };
@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     toast.success("Successfully signed out!");
   };
 
-  const updateProfile = async (data: Partial<User>): Promise<boolean> => {
+  const updateProfile = async (data: Partial<AppUser>): Promise<boolean> => {
     if (!user) return false;
     try {
       const { data: updatedUser, error } = await supabase.auth.updateUser({
@@ -132,21 +132,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
       if (error) {
-        toast.error(\`Failed to update profile: \${error.message}\`);
+        toast.error(`Failed to update profile: ${error.message}`);
         return false;
       }
       if (updatedUser) {
         setUser({
           ...user,
           ...data,
-          name: updatedUser?.user_metadata?.name
+          name: (updatedUser as any).user_metadata?.name || "", // Safely access user_metadata
         });
         toast.success("Profile updated successfully!");
         return true;
       }
       return false;
     } catch (error: any) {
-      toast.error(\`Failed to update profile: \${error.message}\`);
+      toast.error(`Failed to update profile: ${error.message}`);
       return false;
     }
   };
@@ -167,6 +167,3 @@ export const useAuth = () => {
   }
   return context;
 };
-`;
-const fixedCode = code;
-const data = { fixedCode };
