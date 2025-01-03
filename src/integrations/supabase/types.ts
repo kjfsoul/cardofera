@@ -83,6 +83,33 @@ export type Database = {
         }
         Relationships: []
       }
+      card_styles: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          material_properties: Json | null
+          name: string
+          preview_image_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          material_properties?: Json | null
+          name: string
+          preview_image_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          material_properties?: Json | null
+          name?: string
+          preview_image_url?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           birthday: string | null
@@ -256,6 +283,45 @@ export type Database = {
           image_url?: string | null
           name?: string
           price?: number
+        }
+        Relationships: []
+      }
+      image_vault: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string
+          is_ai_generated: boolean | null
+          is_company_asset: boolean | null
+          license_type: string | null
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url: string
+          is_ai_generated?: boolean | null
+          is_company_asset?: boolean | null
+          license_type?: string | null
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string
+          is_ai_generated?: boolean | null
+          is_company_asset?: boolean | null
+          license_type?: string | null
+          tags?: string[] | null
+          title?: string
         }
         Relationships: []
       }
