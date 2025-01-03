@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -19,6 +19,18 @@ const queryClient = new QueryClient({
   },
 });
 
+// ProtectedRoute component to restrict access to authenticated users
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+
+  if (!user) {
+    // Redirect to the sign-in page if the user is not authenticated
+    return <Navigate to="/signin" replace />;
+  }
+
+  return children;
+};
+
 const App = () => {
   return (
     <React.StrictMode>
@@ -29,9 +41,21 @@ const App = () => {
               <Toaster />
               <Sonner />
               <Routes>
-                <Route path="/" element={<Index />} />
+                {/* Public Routes */}
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/signup" element={<SignUp />} />
+
+                {/* Protected Routes */}
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* 404 Not Found */}
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>

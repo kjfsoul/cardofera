@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,21 +12,6 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        navigate('/'); // Or the correct route for the card creation page
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -34,64 +19,19 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      if (!email || !password) {
-        toast.error("Please fill in all fields");
-        return;
-      }
-
-      if (!validateEmail(email)) {
-        toast.error("Please enter a valid email address");
-        return;
-      }
-
-      if (password.length < 6) {
-        toast.error("Password must be at least 6 characters long");
-        return;
-      }
-
-      const trimmedEmail = email.trim().toLowerCase();
-      
-      console.log("Attempting sign in for email:", trimmedEmail);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: trimmedEmail,
-        password: password.trim(),
-      });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        console.error("Sign in error details:", {
-          message: error.message,
-          status: error.status,
-          name: error.name
-        });
-        
-        if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please try again or sign up if you don't have an account.", {
-            action: {
-              label: "Sign Up",
-              onClick: () => navigate("/signup")
-            }
-          });
-        } else if (error.message.includes("Email not confirmed")) {
-          toast.error("Please verify your email address before signing in.");
-        } else {
-          console.error("Unhandled sign in error:", error);
-          toast.error("An error occurred during sign in. Please try again.");
-        }
+        toast.error(error.message);
         return;
       }
 
       if (data.session) {
-        console.log("Successfully signed in with session:", data.session);
         toast.success("Successfully signed in!");
-        navigate("/"); // Or the correct route for the card creation page
-      } else {
-        console.error("No session after successful sign in");
-        toast.error("Something went wrong. Please try again.");
+        navigate("/"); // Redirect to the Index page
       }
     } catch (error: any) {
-      console.error("Unexpected error during sign in:", error);
-      toast.error("An unexpected error occurred. Please try again later.");
+      toast.error(error.message);
     } finally {
       setIsLoading(false);
     }
