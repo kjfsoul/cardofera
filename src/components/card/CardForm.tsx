@@ -1,12 +1,13 @@
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 import { Wand2, RotateCcw } from "lucide-react";
 import RecipientSelect from "./RecipientSelect";
+import { Recipient } from "../../types/contact";
 
 interface CardFormProps {
   cardData: {
-    recipientName: string;
+    recipientName: Recipient;
     occasion: string;
     message: string;
     style: string;
@@ -43,7 +44,7 @@ const CardForm = ({
 
   const handleReset = () => {
     setCardData({
-      recipientName: "",
+      recipientName: { name: "", email: "" },
       occasion: "birthday",
       message: "",
       style: "modern",
@@ -52,7 +53,7 @@ const CardForm = ({
   };
 
   const handleAutoSuggest = () => {
-    const suggestedMessage = `Dear ${cardData.recipientName},\nWishing you a wonderful ${cardData.occasion}!`;
+    const suggestedMessage = `Dear ${cardData.recipientName.name},\nWishing you a wonderful ${cardData.occasion}!`;
     setCardData({ ...cardData, message: suggestedMessage });
   };
 

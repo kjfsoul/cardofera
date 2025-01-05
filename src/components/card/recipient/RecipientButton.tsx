@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../components/ui/button";
 import { ChevronsUpDown } from "lucide-react";
-import { Contact } from "@/types/contact";
+import { Recipient } from "../../../types/contact";
 
 interface RecipientButtonProps {
   isLoading: boolean;
-  selectedContact: Contact | undefined;
-  value: string;
+  selectedRecipient: Recipient;
+  value: Recipient;
   open: boolean;
 }
 
-export const RecipientButton = ({ isLoading, selectedContact, value, open }: RecipientButtonProps) => {
+export const RecipientButton = ({ isLoading, selectedRecipient, value, open }: RecipientButtonProps) => {
   return (
     <Button
       variant="outline"
@@ -20,9 +20,9 @@ export const RecipientButton = ({ isLoading, selectedContact, value, open }: Rec
     >
       {isLoading 
         ? "Loading contacts..." 
-        : selectedContact 
-          ? selectedContact.name 
-          : value || "Select recipient..."}
+        : selectedRecipient?.name 
+          ? selectedRecipient.name 
+          : value?.name || "Select recipient..."}
       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
     </Button>
   );

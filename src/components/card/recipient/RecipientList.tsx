@@ -1,23 +1,23 @@
 import { Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../../lib/utils";
 import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
-} from "@/components/ui/command";
-import { Contact } from "@/types/contact";
+} from "../../ui/command";
+import { Recipient } from "../../../types/contact";
 
 interface RecipientListProps {
   isLoading: boolean;
-  contacts: Contact[];
-  value: string;
-  onSelect: (value: string) => void;
+  recipients: Recipient[];
+  value: Recipient;
+  onSelect: (value: Recipient) => void;
   onOpenChange: (open: boolean) => void;
 }
 
 export const RecipientList = ({ 
   isLoading, 
-  contacts, 
+  recipients, 
   value, 
   onSelect,
   onOpenChange 
@@ -28,25 +28,28 @@ export const RecipientList = ({
         {isLoading ? "Loading..." : "No recipient found."}
       </CommandEmpty>
       <CommandGroup>
-        {contacts.map((contact) => (
+        {recipients.map((recipient) => (
           <CommandItem
-            key={contact.id}
-            value={contact.name}
+            key={recipient.name}
+            value={recipient.name} // This remains as string for CommandItem
             onSelect={(currentValue) => {
-              onSelect(currentValue === value ? "" : currentValue);
-              onOpenChange(false);
+              const selected = recipients.find(r => r.name === currentValue);
+              if (selected) {
+                onSelect(selected);
+                onOpenChange(false);
+              }
             }}
           >
             <Check
               className={cn(
                 "mr-2 h-4 w-4",
-                value === contact.name ? "opacity-100" : "opacity-0"
+                value?.name === recipient.name ? "opacity-100" : "opacity-0"
               )}
             />
-            <span>{contact.name}</span>
-            {contact.relationship && (
+            <span>{recipient.name}</span>
+            {recipient.email && (
               <span className="ml-2 text-sm text-muted-foreground">
-                ({contact.relationship})
+                ({recipient.email})
               </span>
             )}
           </CommandItem>
