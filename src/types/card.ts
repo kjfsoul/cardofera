@@ -1,5 +1,7 @@
+import { Recipient } from "./contact";
+
 export interface CardData {
-  recipientName: string;
+  recipientName: Recipient;
   occasion: string;
   message: string;
   style: string;

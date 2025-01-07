@@ -8,14 +8,14 @@ import CardImagePrompt from "./CardImagePrompt";
 interface CardImageSectionProps {
   showImageSearch: boolean;
   setShowImageSearch: (show: boolean) => void;
-  setSelectedImage: (image: string | null) => void;
+  setSelectedImages: (images: string[]) => void;
   isGenerating: boolean;
 }
 
 const CardImageSection = ({
   showImageSearch,
   setShowImageSearch,
-  setSelectedImage,
+  setSelectedImages,
   isGenerating,
 }: CardImageSectionProps) => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +23,7 @@ const CardImageSection = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedImage(reader.result as string);
+        setSelectedImages([reader.result as string]);
         toast.success("Image uploaded successfully!");
       };
       reader.readAsDataURL(file);
@@ -71,7 +71,7 @@ const CardImageSection = ({
         </div>
 
         {showImageSearch && (
-          <CardImageSearch onImageSelect={setSelectedImage} />
+          <CardImageSearch onImageSelect={setSelectedImages} />
         )}
 
         <div className="space-y-2">
@@ -80,7 +80,7 @@ const CardImageSection = ({
             Describe your perfect card image and let our AI create it for you
           </p>
           <CardImagePrompt
-            onImageGenerate={setSelectedImage}
+            onImageGenerate={(image) => setSelectedImages([image])}
             isGenerating={isGenerating}
           />
         </div>

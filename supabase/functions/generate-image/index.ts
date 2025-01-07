@@ -15,6 +15,7 @@ app.use(express.json());
 
 app.post('/generate-image', async (req, res) => {
   try {
+    // Validate API key
     const huggingFaceToken = process.env.HUGGING_FACE;
     if (!huggingFaceToken) {
       console.error('HuggingFace API key not configured');
@@ -24,6 +25,7 @@ app.post('/generate-image', async (req, res) => {
       });
     }
 
+    // Rate limiting
     const now = Date.now();
     if (now - lastRequestTime > RATE_LIMIT_WINDOW) {
       requestCount = 0;
@@ -40,24 +42,47 @@ app.post('/generate-image', async (req, res) => {
 
     requestCount++;
 
-    const { prompt } = req.body;
-    console.log('Generating image with prompt:', prompt);
+    // Validate request body
+    const { prompt, num_images = 3 } = req.body;
+    if (!prompt || typeof prompt !== 'string') {
+      return res.status(400).json({
+        error: 'Invalid Request',
+        details: 'Prompt is required and must be a string'
+      });
+    }
+
+    console.log('Generating', num_images, 'images with prompt:', prompt);
 
     const hf = new HfInference(huggingFaceToken);
-    const image = await hf.textToImage({
-      inputs: prompt,
-      model: 'stabilityai/stable-diffusion-2',
+    
+    // Generate multiple images with error handling
+    const imagePromises = Array.from({ length: num_images }, async () => {
+      try {
+        const image = await hf.textToImage({
+          inputs: prompt,
+          model: 'stabilityai/stable-diffusion-2',
+        });
+        const arrayBuffer = await image.arrayBuffer();
+        return Buffer.from(arrayBuffer).toString('base64');
+      } catch (error) {
+        console.error('Error generating single image:', error);
+        throw error;
+      }
     });
 
-    const arrayBuffer = await image.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString('base64');
-
-    return res.json({ image: `data:image/png;base64,${base64}` });
+    const imageUrls = await Promise.all(imagePromises);
+    
+    return res.json({ 
+      success: true,
+      images: imageUrls.map(base64 => `data:image/png;base64,${base64}`)
+    });
+    
   } catch (error) {
-    console.error('Error generating image:', error);
+    console.error('Error generating images:', error);
     return res.status(500).json({
-      error: error.message || 'Failed to generate image',
-      details: 'An error occurred while generating the image. Please try again.'
+      error: 'Generation Error',
+      details: error.message || 'Failed to generate images',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
