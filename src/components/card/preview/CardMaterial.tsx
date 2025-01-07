@@ -70,7 +70,7 @@ const STYLE_NORMAL_MAPS = {
   elegant: '/public/elegant-normal.png'
 };
 
-export const CardMaterial = ({ mesh, imageUrl, style = 'modern' }: CardMaterialProps) => {
+export const CardMaterial = ({ mesh, imageUrl, style = 'modern', imageScale, imagePosition }: CardMaterialProps) => {
   const textureLoader = new THREE.TextureLoader();
   const imageTextureRef = useRef<THREE.Texture | null>(null);
   const styleTextureRef = useRef<THREE.Texture | null>(null);
