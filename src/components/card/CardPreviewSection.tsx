@@ -1,13 +1,14 @@
 import { Card } from "@/components/ui/card";
 import CardPreview3D from "./preview/CardPreview3D";
 import { cn } from "@/lib/utils";
+import type { CardStyle } from "@/types/card";
 
 interface CardPreviewSectionProps {
-  selectedImage: string | null;
-  imageUrl: string | null;
+  selectedImage: string | undefined;
+  imageUrl: string | undefined;
   cardMessage: string;
   isSoundEnabled: boolean;
-  cardStyle: string;
+  cardStyle: CardStyle;
   textPosition: "left" | "center" | "right";
   fontSize: number;
   fontFamily: string;

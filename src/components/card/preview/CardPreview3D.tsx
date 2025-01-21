@@ -5,12 +5,13 @@ import { CardLighting } from "./CardLighting";
 import { CardMaterial } from "./CardMaterial";
 import { CardAnimation } from "./CardAnimation";
 import { toast } from "sonner";
+import type { CardStyle } from "@/types/card";
 
 interface CardPreview3DProps {
   imageUrl?: string;
   text?: string;
   enableSound?: boolean;
-  style?: string;
+  style?: CardStyle;
 }
 
 const CardPreview3D = ({

@@ -1,10 +1,12 @@
 import { Recipient } from "./contact";
 
+export type CardStyle = "modern" | "classic" | "playful" | "elegant";
+
 export interface CardData {
   recipient: Recipient;
   occasion: string;
   message: string;
-  style: string;
+  style: CardStyle;
   deliveryMethod: string;
   textPosition: "left" | "center" | "right";
   fontSize: number;
