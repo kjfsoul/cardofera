@@ -1,0 +1,78 @@
+linting:
+  - eslint --fix
+  - prettier --write
+
+debugging:
+  - "always enable breakpoints"
+  - "log all API requests and responses"
+  - "track component state changes in real-time"
+
+structure:
+  - "enforce folder structure: /src/components, /src/pages, /src/hooks, /src/utils"
+  - "limit component size to 200 lines; extract logic to hooks where applicable"
+  - "use TypeScript for all files; enforce strict type-checking"
+
+error-handling:
+  - "centralize error handling in utils/errors.ts"
+  - "log errors with context (component name, error type)"
+  - "retry failed API calls up to 3 times with exponential backoff"
+
+supabase:
+  - "fetch only required columns in database queries using .select()"
+  - "validate input and output for all Supabase queries"
+  - "use edge functions for sensitive operations"
+
+testing:
+  - "run unit tests on all new functions using Jest"
+  - "test components with React Testing Library for accessibility and performance"
+  - "ensure at least 80% test coverage before merging to main"
+
+automation:
+  - "add precommit hooks to run linting, formatting, and unit tests"
+  - "deploy staging builds on pull request merges using GitHub Actions"
+  - "notify developers of build errors with detailed logs"
+
+state-management:
+  - "ensure style state updates trigger re-render of card preview"
+  - "validate binding of onChange handlers for dropdown inputs"
+
+rendering:
+  - "preserve existing imageURL when style is updated"
+
+ai-enhancements:
+  - "generate 3 AI images; store in state array"
+  - "implement 'auto-rewrite' for better prompts"
+
+dropdowns:
+  - "fetch and populate options from Supabase"
+  - "add manual input for custom names and emails"
+
+design:
+  - "apply realistic card dimensions (5x7)"
+  - "add border shadows for 3D effects"
+
+state-management:
+  - "ensure all states reset to default when reset is clicked"
+
+ui-bugs:
+  - "fix calendar z-index to avoid overlapping"
+  - "validate date selection logic"
+
+features:
+  - "add SMS, direct mail, voice calls, and social media delivery options"
+  - "auto-select aura gift category based on user color choice"
+  - "allow recipient addition directly in gift/card generator pages"
+
+api:
+  - "allow updates to recipient data via Supabase API"
+  - "authenticate and fetch events from Google/Apple Calendar APIs"
+
+ui-enhancements:
+  - "implement dual-range slider for budget selection"
+
+ui:
+  - "display popup until dismissed by the user"
+  - "align day headers with calendar grid"
+
+error-logging:
+  - "log context and error details for all API failures"
