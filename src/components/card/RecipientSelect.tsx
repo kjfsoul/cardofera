@@ -4,119 +4,35 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useContacts } from "../../hooks/useContacts";
-import { RecipientSelectProps, Recipient, Contact } from "../../types/contact";
+import { RecipientSelectProps, Recipient } from "../../types/contact";
 import { RecipientButton } from "./recipient/RecipientButton";
 import { RecipientList } from "./recipient/RecipientList";
 import { toast } from "sonner";
-import { supabase } from "../../integrations/supabase/client";
-
-const LOCAL_CONTACTS_KEY = "cardofera_local_contacts";
 
 const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
   const [open, setOpen] = useState(false);
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newContact, setNewContact] = useState({ name: "", email: "" });
   const [isManualEntry, setIsManualEntry] = useState(false);
   const [manualRecipient, setManualRecipient] = useState<Recipient>({
     name: "",
-    email: "unknown@example.com",
+    email: "",
   });
 
-  const { data: contacts = [], isLoading, error } = useContacts();
-  const [localRecipients, setLocalRecipients] = useState<Recipient[]>([]);
-
-  // Load local recipients on mount
-  useEffect(() => {
-    const storedRecipients = localStorage.getItem(LOCAL_CONTACTS_KEY);
-    if (storedRecipients) {
-      setLocalRecipients(JSON.parse(storedRecipients));
-    }
-  }, []);
+  const { data: contacts = [], isLoading } = useContacts();
 
   // Convert contacts to recipients
-  const allRecipients = [
-    ...contacts.map((contact) => ({
-      name: contact.name,
-      email: contact.email || "unknown@example.com",
-    })),
-    ...localRecipients,
-  ];
-
-  const selectedRecipient = allRecipients.find(
-    (recipient) => recipient.name === value.name,
-  ) || { name: "", email: "unknown@example.com" };
-
-  useEffect(() => {
-    if (error) {
-      console.error("Error loading contacts:", error);
-      toast.error("Failed to load contacts. Please check your authentication.");
-    }
-  }, [error]);
-
-  const handleAddNewContact = async () => {
-    if (!newContact.name.trim() || !newContact.email.trim()) {
-      toast.error("Please enter both name and email");
-      return;
-    }
-
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        // Signed in user - save to database
-        const { data, error: insertError } = await supabase
-          .from("contacts")
-          .insert({
-            name: newContact.name,
-            email: newContact.email,
-            user_id: user.id,
-            relationship: "Friend",
-          })
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-
-        onChange({
-          name: data.name,
-          email: data.email,
-        });
-        toast.success("Contact added successfully!");
-      } else {
-        // Guest user - save to local storage
-        const newRecipient = {
-          name: newContact.name,
-          email: newContact.email,
-        };
-        const updatedRecipients = [...localRecipients, newRecipient];
-        setLocalRecipients(updatedRecipients);
-        localStorage.setItem(
-          LOCAL_CONTACTS_KEY,
-          JSON.stringify(updatedRecipients),
-        );
-        onChange(newRecipient);
-        toast.success("Contact saved locally!");
-      }
-
-      setIsAddingNew(false);
-      setNewContact({ name: "", email: "" });
-      setOpen(false);
-    } catch (error) {
-      console.error("Error adding contact:", error);
-      toast.error("Failed to add contact. Please try again.");
-    }
-  };
+  const recipients = contacts.map((contact) => ({
+    name: contact.name,
+    email: contact.email || "",
+  }));
 
   const handleManualEntry = () => {
-    if (!manualRecipient.name.trim() || !manualRecipient.email.trim()) {
-      toast.error("Please enter both name and email");
+    if (!manualRecipient.name.trim()) {
+      toast.error("Please enter a recipient name");
       return;
     }
     onChange(manualRecipient);
     setOpen(false);
-    setManualRecipient({ name: "", email: "unknown@example.com" });
+    setManualRecipient({ name: "", email: "" });
     setIsManualEntry(false);
   };
 
@@ -125,7 +41,7 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
       <PopoverTrigger asChild>
         <RecipientButton
           isLoading={isLoading}
-          selectedRecipient={selectedRecipient}
+          selectedRecipient={value}
           value={value}
           open={open}
         />
@@ -165,10 +81,9 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
                         name: e.target.value,
                       }))
                     }
-                    onKeyDown={(e) => e.key === "Enter" && handleManualEntry()}
                   />
                   <Input
-                    placeholder="Enter recipient email"
+                    placeholder="Enter recipient email (optional)"
                     value={manualRecipient.email}
                     onChange={(e) =>
                       setManualRecipient((prev) => ({
@@ -176,40 +91,27 @@ const RecipientSelect = ({ value, onChange }: RecipientSelectProps) => {
                         email: e.target.value,
                       }))
                     }
-                    onKeyDown={(e) => e.key === "Enter" && handleManualEntry()}
                   />
                   <Button
                     size="sm"
                     onClick={handleManualEntry}
-                    disabled={!manualRecipient.name.trim() || !manualRecipient.email.trim()}
+                    disabled={!manualRecipient.name.trim()}
                     className="w-full"
                   >
                     Use Recipient
                   </Button>
                 </div>
               ) : (
-                <>
-                  <RecipientList
-                    isLoading={isLoading}
-                    recipients={allRecipients}
-                    value={value}
-                    onSelect={(recipient) => {
-                      onChange(recipient);
-                      setOpen(false);
-                    }}
-                    onOpenChange={setOpen}
-                  />
-                  <div className="mt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setIsAddingNew(true)}
-                      className="w-full"
-                    >
-                      Add New Contact
-                    </Button>
-                  </div>
-                </>
+                <RecipientList
+                  isLoading={isLoading}
+                  recipients={recipients}
+                  value={value}
+                  onSelect={(recipient) => {
+                    onChange(recipient);
+                    setOpen(false);
+                  }}
+                  onOpenChange={setOpen}
+                />
               )}
             </div>
           </CommandList>
