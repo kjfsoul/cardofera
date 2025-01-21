@@ -11,7 +11,10 @@ interface CardImagePromptProps {
   isGenerating: boolean;
 }
 
-const CardImagePrompt = ({ onImageGenerate, isGenerating }: CardImagePromptProps) => {
+const CardImagePrompt = ({
+  onImageGenerate,
+  isGenerating,
+}: CardImagePromptProps) => {
   const [prompt, setPrompt] = useState("");
   const [rateLimitError, setRateLimitError] = useState<string | null>(null);
 
@@ -23,20 +26,25 @@ const CardImagePrompt = ({ onImageGenerate, isGenerating }: CardImagePromptProps
 
     try {
       setRateLimitError(null);
-      const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { prompt }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "generate-image",
+        {
+          body: { prompt },
+        },
+      );
 
       if (error) {
         // Check if it's a rate limit error (status 429)
-        const errorBody = JSON.parse(error.message || '{}');
+        const errorBody = JSON.parse(error.message || "{}");
         if (errorBody.status === 429) {
-          setRateLimitError("Rate limit reached. Please wait a minute before trying again.");
+          setRateLimitError(
+            "Rate limit reached. Please wait a minute before trying again.",
+          );
           return;
         }
         throw error;
       }
-      
+
       if (data?.image) {
         onImageGenerate(data.image);
         toast.success("Image generated successfully!");
@@ -58,14 +66,14 @@ const CardImagePrompt = ({ onImageGenerate, isGenerating }: CardImagePromptProps
           <AlertDescription>{rateLimitError}</AlertDescription>
         </Alert>
       )}
-      
+
       <Input
         placeholder="Describe your perfect card image (e.g., 'A beautiful birthday cake with colorful candles')"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         className="h-12"
       />
-      <Button 
+      <Button
         onClick={handleGenerate}
         disabled={isGenerating || !prompt.trim() || !!rateLimitError}
         className="w-full h-12"

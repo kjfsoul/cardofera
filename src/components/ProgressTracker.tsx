@@ -25,12 +25,14 @@ const ProgressTracker = ({ items }: ProgressTrackerProps) => {
             role="button"
             tabIndex={0}
           >
-            <CheckCircle2 
+            <CheckCircle2
               className={cn(
                 "h-4 w-4",
-                item.status === "completed" ? "text-green-500" :
-                item.status === "in-progress" ? "text-yellow-500" :
-                "text-gray-300"
+                item.status === "completed"
+                  ? "text-green-500"
+                  : item.status === "in-progress"
+                    ? "text-yellow-500"
+                    : "text-gray-300",
               )}
             />
             <span className="text-sm">{item.label}</span>

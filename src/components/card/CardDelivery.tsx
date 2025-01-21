@@ -20,7 +20,11 @@ interface CardDeliveryProps {
   message: string;
 }
 
-export const CardDelivery = ({ cardRef, recipientEmail, message }: CardDeliveryProps) => {
+export const CardDelivery = ({
+  cardRef,
+  recipientEmail,
+  message,
+}: CardDeliveryProps) => {
   const [scheduledDate, setScheduledDate] = useState<Date>();
   const [isScheduling, setIsScheduling] = useState(false);
   const [isSending, setIsSending] = useState(false);
@@ -60,7 +64,9 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }: CardDeliveryP
 
     setIsSending(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         toast.error("Please sign in to send cards");
         return;
@@ -90,17 +96,20 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }: CardDeliveryP
 
       // Send email if not scheduled
       if (!scheduledDate) {
-        const { error: emailError } = await supabase.functions.invoke("send-email", {
-          body: {
-            to: recipientEmail,
-            subject: "You received a birthday card!",
-            html: `<div style="font-family: sans-serif;">
+        const { error: emailError } = await supabase.functions.invoke(
+          "send-email",
+          {
+            body: {
+              to: recipientEmail,
+              subject: "You received a birthday card!",
+              html: `<div style="font-family: sans-serif;">
               <h1>Someone sent you a birthday card!</h1>
               <p>${message}</p>
             </div>`,
-            cardImage: imageData,
+              cardImage: imageData,
+            },
           },
-        });
+        );
 
         if (emailError) throw emailError;
       }
@@ -108,7 +117,7 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }: CardDeliveryP
       toast.success(
         scheduledDate
           ? "Card scheduled for delivery!"
-          : "Card sent successfully!"
+          : "Card sent successfully!",
       );
       setScheduledDate(undefined);
     } catch (error) {
@@ -135,9 +144,14 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }: CardDeliveryP
       <div className="flex items-center space-x-2">
         <Popover open={isScheduling} onOpenChange={setIsScheduling}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-[240px] justify-start text-left font-normal">
+            <Button
+              variant="outline"
+              className="w-[240px] justify-start text-left font-normal"
+            >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {scheduledDate ? format(scheduledDate, "PPP") : "Schedule delivery"}
+              {scheduledDate
+                ? format(scheduledDate, "PPP")
+                : "Schedule delivery"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -164,11 +178,7 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }: CardDeliveryP
           <Send className="mr-2 h-4 w-4" />
           {isSending ? "Sending..." : scheduledDate ? "Schedule" : "Send Now"}
         </Button>
-        <Button
-          variant="outline"
-          onClick={handleDownload}
-          disabled={isSending}
-        >
+        <Button variant="outline" onClick={handleDownload} disabled={isSending}>
           <Download className="mr-2 h-4 w-4" />
           Download
         </Button>

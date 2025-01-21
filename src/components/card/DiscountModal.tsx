@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,7 +18,13 @@ interface DiscountModalProps {
   percentage: number;
 }
 
-const DiscountModal = ({ open, onOpenChange, code, expiresAt, percentage }: DiscountModalProps) => {
+const DiscountModal = ({
+  open,
+  onOpenChange,
+  code,
+  expiresAt,
+  percentage,
+}: DiscountModalProps) => {
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
 
@@ -21,7 +32,7 @@ const DiscountModal = ({ open, onOpenChange, code, expiresAt, percentage }: Disc
     const timer = setInterval(() => {
       const now = new Date();
       const diff = expiresAt.getTime() - now.getTime();
-      
+
       if (diff <= 0) {
         setTimeLeft("Expired");
         return;
@@ -49,7 +60,7 @@ const DiscountModal = ({ open, onOpenChange, code, expiresAt, percentage }: Disc
           <DialogTitle>Your Discount Code</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          <motion.div 
+          <motion.div
             className="p-6 bg-primary/10 rounded-lg text-center"
             initial={{ scale: 0.95 }}
             animate={{ scale: 1 }}

@@ -9,7 +9,12 @@ interface RecipientButtonProps {
   open: boolean;
 }
 
-export const RecipientButton = ({ isLoading, selectedRecipient, value, open }: RecipientButtonProps) => {
+export const RecipientButton = ({
+  isLoading,
+  selectedRecipient,
+  value,
+  open,
+}: RecipientButtonProps) => {
   return (
     <Button
       variant="outline"
@@ -18,10 +23,10 @@ export const RecipientButton = ({ isLoading, selectedRecipient, value, open }: R
       className="w-full justify-between"
       disabled={isLoading}
     >
-      {isLoading 
-        ? "Loading contacts..." 
-        : selectedRecipient?.name 
-          ? selectedRecipient.name 
+      {isLoading
+        ? "Loading contacts..."
+        : selectedRecipient?.name
+          ? selectedRecipient.name
           : value?.name || "Select recipient..."}
       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
     </Button>

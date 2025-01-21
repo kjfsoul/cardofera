@@ -1,11 +1,11 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-const DiscountModal = ({ open, onOpenChange, code, expiresAt, percentage }) => {
+const DiscountModal = ({ open, onOpenChange, code, expiresAt, percentage, }) => {
     const [copied, setCopied] = useState(false);
     const [timeLeft, setTimeLeft] = useState("");
     useEffect(() => {

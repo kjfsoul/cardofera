@@ -1,9 +1,8 @@
 {
-    "imports": {
-      // Map to an exact file
-      "foo": "./some/long/path/foo.ts",
-      // Map to a directory, usage: "bar/file.ts"
-      "bar/": "./some/folder/bar/"
-    }
-  }
-  
+  "imports": {
+    // Map to an exact file
+    "foo": "./some/long/path/foo.ts",
+    // Map to a directory, usage: "bar/file.ts"
+    "bar/": "./some/folder/bar/",
+  },
+}

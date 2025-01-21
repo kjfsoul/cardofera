@@ -1,13 +1,18 @@
 import { Calendar, Gift, Mail, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { SectionKey } from "@/pages/Index";
+
 interface NavigationButtonsProps {
-  activeSection: string;
-  onSectionChange: (section: string) => void;
+  activeSection: SectionKey;
+  onSectionChange: (section: SectionKey) => void;
 }
 
-const NavigationButtons = ({ activeSection, onSectionChange }: NavigationButtonsProps) => {
-  const buttons = [
+const NavigationButtons = ({
+  activeSection,
+  onSectionChange,
+}: NavigationButtonsProps) => {
+  const buttons: { id: SectionKey; label: string; icon: typeof Mail }[] = [
     { id: "cards", label: "Birthday Cards", icon: Mail },
     { id: "gifts", label: "Gift Finder", icon: Gift },
     { id: "calendar", label: "Calendar", icon: Calendar },

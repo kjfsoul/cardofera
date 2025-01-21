@@ -23,7 +23,7 @@ export const EnhancedGiftQuiz = () => {
     interests: [],
     priceRange: [0, 500],
     occasion: "",
-    style: "modern"
+    style: "modern",
   });
 
   const handleStartQuiz = async () => {
@@ -36,20 +36,21 @@ export const EnhancedGiftQuiz = () => {
       const { data: recommendations, error } = await supabase.functions.invoke(
         "get-gift-recommendations",
         {
-          body: { quizState }
-        }
+          body: { quizState },
+        },
       );
 
       if (error) throw error;
 
       await trackEvent("quiz_completed", undefined, { quizState });
-      toast.success("Quiz completed! Check out your personalized recommendations");
+      toast.success(
+        "Quiz completed! Check out your personalized recommendations",
+      );
 
       // Save quiz results
       await supabase.from("wish_lists").insert({
-        quiz_results: quizState
+        quiz_results: quizState,
       });
-
     } catch (error) {
       console.error("Error completing quiz:", error);
       toast.error("Failed to get recommendations");
@@ -78,7 +79,7 @@ export const EnhancedGiftQuiz = () => {
                 onChange={(e) =>
                   setQuizState({
                     ...quizState,
-                    interests: e.target.value.split(",").map((i) => i.trim())
+                    interests: e.target.value.split(",").map((i) => i.trim()),
                   })
                 }
               />
@@ -97,7 +98,10 @@ export const EnhancedGiftQuiz = () => {
                   max={1000}
                   step={10}
                   onValueChange={(value) =>
-                    setQuizState({ ...quizState, priceRange: value as [number, number] })
+                    setQuizState({
+                      ...quizState,
+                      priceRange: value as [number, number],
+                    })
                   }
                 />
               </div>

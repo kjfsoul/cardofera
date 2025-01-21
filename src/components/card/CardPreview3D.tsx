@@ -9,7 +9,12 @@ interface CardPreview3DProps {
   style?: string; // Added this prop
 }
 
-const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }: CardPreview3DProps) => {
+const CardPreview3D = ({
+  imageUrl,
+  text,
+  enableSound = false,
+  style = "modern",
+}: CardPreview3DProps) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -30,18 +35,21 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
       60,
       mountRef.current.clientWidth / mountRef.current.clientHeight,
       0.1,
-      1000
+      1000,
     );
     camera.position.z = 4;
     camera.position.y = 0.5;
     cameraRef.current = camera;
 
     // Enhanced renderer setup
-    const renderer = new THREE.WebGLRenderer({ 
+    const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
     });
-    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+    renderer.setSize(
+      mountRef.current.clientWidth,
+      mountRef.current.clientHeight,
+    );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -76,18 +84,18 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
       });
 
       switch (style) {
-        case 'classic':
+        case "classic":
           baseMaterial.color = new THREE.Color(0xf5e6d3);
           baseMaterial.metalness = 0.05;
           baseMaterial.roughness = 0.4;
           break;
-        case 'playful':
+        case "playful":
           baseMaterial.color = new THREE.Color(0xffffff);
           baseMaterial.metalness = 0.2;
           baseMaterial.roughness = 0.1;
           baseMaterial.clearcoat = 0.5;
           break;
-        case 'elegant':
+        case "elegant":
           baseMaterial.color = new THREE.Color(0xf0f0f0);
           baseMaterial.metalness = 0.3;
           baseMaterial.roughness = 0.1;
@@ -104,7 +112,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
     // Enhanced card material
     const geometry = new THREE.BoxGeometry(3, 4, 0.1);
     const material = getMaterialByStyle(style);
-    
+
     const card = new THREE.Mesh(geometry, material);
     card.castShadow = true;
     card.receiveShadow = true;
@@ -114,7 +122,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
 
     // Ground plane with better shadow
     const groundGeometry = new THREE.PlaneGeometry(20, 20);
-    const groundMaterial = new THREE.ShadowMaterial({ 
+    const groundMaterial = new THREE.ShadowMaterial({
       opacity: 0.2,
       color: 0x000000,
     });
@@ -133,7 +141,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
     let lastTime = 0;
     const animate = (time: number) => {
       requestAnimationFrame(animate);
-      
+
       const delta = (time - lastTime) / 1000;
       lastTime = time;
 
@@ -141,7 +149,7 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
         cardRef.current.rotation.y = Math.sin(time * 0.0005) * 0.2;
         cardRef.current.position.y = 0.5 + Math.sin(time * 0.001) * 0.05;
       }
-      
+
       renderer.render(scene, camera);
     };
     animate(0);
@@ -149,10 +157,14 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
     // Responsive handling
     const handleResize = () => {
       if (!mountRef.current || !camera || !renderer) return;
-      
-      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+
+      camera.aspect =
+        mountRef.current.clientWidth / mountRef.current.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      renderer.setSize(
+        mountRef.current.clientWidth,
+        mountRef.current.clientHeight,
+      );
     };
     window.addEventListener("resize", handleResize);
 
@@ -160,7 +172,9 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
     const handleInteraction = () => {
       if (enableSound && audioRef.current) {
         audioRef.current.play().catch(() => {
-          toast.error("Unable to play sound. Please check your browser settings.");
+          toast.error(
+            "Unable to play sound. Please check your browser settings.",
+          );
         });
       }
     };
@@ -187,21 +201,23 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
         if (cardRef.current) {
           texture.colorSpace = THREE.SRGBColorSpace;
           texture.anisotropy = 16;
-          (cardRef.current.material as THREE.MeshPhysicalMaterial).map = texture;
-          (cardRef.current.material as THREE.MeshPhysicalMaterial).needsUpdate = true;
+          (cardRef.current.material as THREE.MeshPhysicalMaterial).map =
+            texture;
+          (cardRef.current.material as THREE.MeshPhysicalMaterial).needsUpdate =
+            true;
         }
       },
       undefined,
       (error) => {
         console.error("Error loading texture:", error);
         toast.error("Failed to load card image");
-      }
+      },
     );
   }, [imageUrl]);
 
   return (
-    <div 
-      ref={mountRef} 
+    <div
+      ref={mountRef}
       className="w-full aspect-[4/3] rounded-lg overflow-hidden border border-border bg-card shadow-xl"
       role="img"
       aria-label="3D card preview"

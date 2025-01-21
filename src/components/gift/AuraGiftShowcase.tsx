@@ -15,51 +15,54 @@ interface AuraGiftShowcaseProps {
   onAuraSelect: (aura: AuraColor) => void;
 }
 
-const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps) => {
+const AuraGiftShowcase = ({
+  selectedAura,
+  onAuraSelect,
+}: AuraGiftShowcaseProps) => {
   const [priceRange, setPriceRange] = useState([50, 200]);
   const queryClient = useQueryClient();
-  
+
   const { data: gifts, isLoading } = useQuery({
-    queryKey: ['gifts', selectedAura, priceRange],
+    queryKey: ["gifts", selectedAura, priceRange],
     queryFn: async () => {
       const query = supabase
-        .from('gift_recommendations')
-        .select('*')
-        .gte('price', priceRange[0])
-        .lte('price', priceRange[1]);
-        
+        .from("gift_recommendations")
+        .select("*")
+        .gte("price", priceRange[0])
+        .lte("price", priceRange[1]);
+
       if (selectedAura) {
-        query.eq('category', AURA_CATEGORIES[selectedAura]);
+        query.eq("category", AURA_CATEGORIES[selectedAura]);
       }
-      
+
       const { data, error } = await query;
       if (error) throw error;
       return data;
-    }
+    },
   });
 
   const addToFavoritesMutation = useMutation({
     mutationFn: async (giftId: string) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
 
-      const { error } = await supabase
-        .from('gift_favorites')
-        .insert({
-          gift_id: giftId,
-          user_id: user.id
-        });
+      const { error } = await supabase.from("gift_favorites").insert({
+        gift_id: giftId,
+        user_id: user.id,
+      });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['favorites'] });
+      queryClient.invalidateQueries({ queryKey: ["favorites"] });
       toast.success("Added to favorites!");
     },
     onError: (error) => {
-      console.error('Error adding to favorites:', error);
+      console.error("Error adding to favorites:", error);
       toast.error("Failed to add to favorites");
-    }
+    },
   });
 
   const handleQuickSend = async (giftId: string) => {
@@ -70,16 +73,18 @@ const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps)
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-4 justify-center">
-        {(Object.entries(AURA_CATEGORIES) as [AuraColor, string][]).map(([color, name]) => (
-          <Button
-            key={color}
-            variant={selectedAura === color ? "default" : "outline"}
-            className={`${selectedAura === color ? AURA_COLORS[color as AuraColor] : ''}`}
-            onClick={() => onAuraSelect(color as AuraColor)}
-          >
-            {name}
-          </Button>
-        ))}
+        {(Object.entries(AURA_CATEGORIES) as [AuraColor, string][]).map(
+          ([color, name]) => (
+            <Button
+              key={color}
+              variant={selectedAura === color ? "default" : "outline"}
+              className={`${selectedAura === color ? AURA_COLORS[color as AuraColor] : ""}`}
+              onClick={() => onAuraSelect(color as AuraColor)}
+            >
+              {name}
+            </Button>
+          ),
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -103,7 +108,7 @@ const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps)
       ) : (
         <AnimatePresence mode="wait">
           <motion.div
-            key={selectedAura || 'all'}
+            key={selectedAura || "all"}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
@@ -139,7 +144,9 @@ const AuraGiftShowcase = ({ selectedAura, onAuraSelect }: AuraGiftShowcaseProps)
                 <div className="p-4 space-y-4">
                   <div>
                     <h3 className="font-semibold">{gift.name}</h3>
-                    <p className="text-sm text-muted-foreground">{gift.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {gift.description}
+                    </p>
                   </div>
                   <div className="flex items-center justify-between">
                     <Badge variant="secondary">{gift.category}</Badge>

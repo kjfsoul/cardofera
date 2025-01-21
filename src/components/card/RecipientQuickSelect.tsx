@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { User, Plus } from "lucide-react";
 import { useContacts } from "@/hooks/useContacts";
@@ -11,7 +18,11 @@ interface RecipientQuickSelectProps {
   onAddNew: () => void;
 }
 
-const RecipientQuickSelect = ({ value, onChange, onAddNew }: RecipientQuickSelectProps) => {
+const RecipientQuickSelect = ({
+  value,
+  onChange,
+  onAddNew,
+}: RecipientQuickSelectProps) => {
   const { data: contacts = [], isLoading } = useContacts();
   const [recentRecipients, setRecentRecipients] = useState<string[]>([]);
 
@@ -24,7 +35,10 @@ const RecipientQuickSelect = ({ value, onChange, onAddNew }: RecipientQuickSelec
 
   const handleSelect = (name: string) => {
     onChange(name);
-    const updated = [name, ...recentRecipients.filter(r => r !== name)].slice(0, 5);
+    const updated = [name, ...recentRecipients.filter((r) => r !== name)].slice(
+      0,
+      5,
+    );
     setRecentRecipients(updated);
     localStorage.setItem("recentRecipients", JSON.stringify(updated));
   };

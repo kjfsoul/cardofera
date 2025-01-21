@@ -8,7 +8,11 @@ interface DeliverySelectorProps {
   isPremium: boolean;
 }
 
-const DeliverySelector = ({ selectedMethod, onMethodSelect, isPremium }: DeliverySelectorProps) => {
+const DeliverySelector = ({
+  selectedMethod,
+  onMethodSelect,
+  isPremium,
+}: DeliverySelectorProps) => {
   const deliveryMethods = [
     { id: "email", icon: Mail, label: "Email" },
     { id: "text", icon: MessageSquare, label: "Text", premium: true },
@@ -29,7 +33,7 @@ const DeliverySelector = ({ selectedMethod, onMethodSelect, isPremium }: Deliver
               selectedMethod === id
                 ? "border-primary bg-primary/10"
                 : "border-input hover:bg-accent hover:text-accent-foreground",
-              premium && !isPremium && "opacity-50 cursor-not-allowed"
+              premium && !isPremium && "opacity-50 cursor-not-allowed",
             )}
           >
             <Icon className="h-4 w-4" />

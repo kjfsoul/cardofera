@@ -1,8 +1,9 @@
-import http from 'http';
+import http from "http";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface Recommendation {
@@ -25,7 +26,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
-    let body = '';
+    let body = "";
     for await (const chunk of req) {
       body += chunk;
     }
@@ -44,7 +45,7 @@ const server = http.createServer(async (req, res) => {
       },
       {
         name: "Handcrafted Jewelry Box",
-        price: 45.00,
+        price: 45.0,
         description: "Elegant wooden jewelry box with custom engraving",
         source: "Etsy",
       },

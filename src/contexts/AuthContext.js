@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         const fetchSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session }, } = await supabase.auth.getSession();
             if (session) {
                 setUser({
                     id: session.user.id,
@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
         };
         fetchSession();
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data: { subscription }, } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === "SIGNED_IN" && session) {
                 setUser({
                     id: session.user.id,
@@ -33,7 +33,10 @@ export const AuthProvider = ({ children }) => {
         return () => subscription.unsubscribe();
     }, []);
     const signIn = async (email, password) => {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
         if (error)
             throw error;
         return !!data.session;

@@ -13,7 +13,12 @@ interface ContactItemProps {
   onQuickSend: (contactId: string, auraColor: AuraColor) => Promise<void>;
 }
 
-const ContactItem = ({ contact, onEdit, onDelete, onQuickSend }: ContactItemProps) => {
+const ContactItem = ({
+  contact,
+  onEdit,
+  onDelete,
+  onQuickSend,
+}: ContactItemProps) => {
   const [showQuickSend, setShowQuickSend] = useState(false);
 
   const getDaysUntilBirthday = (birthday: Date | null) => {
@@ -24,10 +29,14 @@ const ContactItem = ({ contact, onEdit, onDelete, onQuickSend }: ContactItemProp
     if (nextBirthday < today) {
       nextBirthday.setFullYear(today.getFullYear() + 1);
     }
-    return Math.ceil((nextBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.ceil(
+      (nextBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+    );
   };
 
-  const daysUntilBirthday = contact.birthday ? getDaysUntilBirthday(new Date(contact.birthday)) : null;
+  const daysUntilBirthday = contact.birthday
+    ? getDaysUntilBirthday(new Date(contact.birthday))
+    : null;
 
   return (
     <div className="p-4 border rounded-lg hover:bg-accent/5">
@@ -42,18 +51,16 @@ const ContactItem = ({ contact, onEdit, onDelete, onQuickSend }: ContactItemProp
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => onEdit(contact)}
-          >
+          <Button variant="outline" size="icon" onClick={() => onEdit(contact)}>
             <Edit2 className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
             size="icon"
             onClick={() => {
-              if (window.confirm("Are you sure you want to delete this contact?")) {
+              if (
+                window.confirm("Are you sure you want to delete this contact?")
+              ) {
                 onDelete(contact.id);
               }
             }}
@@ -69,7 +76,7 @@ const ContactItem = ({ contact, onEdit, onDelete, onQuickSend }: ContactItemProp
           </Button>
         </div>
       </div>
-      
+
       {showQuickSend && (
         <div className="mt-4">
           <QuickSendGift

@@ -1,29 +1,30 @@
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1', // Path alias mapping
-    '\\.(css|scss|sass)$': 'identity-obj-proxy', // Stub CSS imports for testing
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(gif|ttf|eot|svg|png)$': '<rootDir>/test/__mocks__/fileMock.js'
   },
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.(ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }]
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!lucide-react)', // Transform non-standard modules in node_modules
+    '/node_modules/(?!lucide-react)',
   ],
   collectCoverage: true,
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
+    'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/index.tsx',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+    '!**/node_modules/**'
   ],
   coverageThreshold: {
     global: {
       branches: 80,
       functions: 80,
       lines: 80,
-      statements: 80,
-    },
-  },
+      statements: 80
+    }
+  }
 };

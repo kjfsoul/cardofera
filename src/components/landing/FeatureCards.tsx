@@ -12,20 +12,20 @@ const FeatureCards = ({ onFeatureClick }: FeatureCardsProps) => {
       title: "AI-Powered Cards",
       description: "Create unique birthday cards with our AI technology",
       icon: Sparkles,
-      section: "cards"
+      section: "cards",
     },
     {
       title: "Smart Gift Finder",
       description: "Get personalized gift recommendations",
       icon: Gift,
-      section: "gifts"
+      section: "gifts",
     },
     {
       title: "Never Miss a Birthday",
       description: "Sync with your calendar and get reminders",
       icon: Calendar,
-      section: "calendar"
-    }
+      section: "calendar",
+    },
   ];
 
   return (
@@ -43,7 +43,7 @@ const FeatureCards = ({ onFeatureClick }: FeatureCardsProps) => {
           role="button"
           tabIndex={0}
           onKeyPress={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               onFeatureClick(feature.section);
             }
           }}

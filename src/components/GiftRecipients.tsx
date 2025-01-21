@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -68,7 +74,10 @@ const GiftRecipients = () => {
                 id="relationship"
                 value={newRecipient.relationship}
                 onChange={(e) =>
-                  setNewRecipient({ ...newRecipient, relationship: e.target.value })
+                  setNewRecipient({
+                    ...newRecipient,
+                    relationship: e.target.value,
+                  })
                 }
                 placeholder="e.g., Friend, Family, Colleague"
               />
@@ -79,7 +88,10 @@ const GiftRecipients = () => {
                 id="preferences"
                 value={newRecipient.preferences}
                 onChange={(e) =>
-                  setNewRecipient({ ...newRecipient, preferences: e.target.value })
+                  setNewRecipient({
+                    ...newRecipient,
+                    preferences: e.target.value,
+                  })
                 }
                 placeholder="Enter gift preferences"
               />

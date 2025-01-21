@@ -47,14 +47,13 @@ const Index = () => {
             element?.scrollIntoView({ behavior: "smooth" });
         }
     };
-    // Redirect to sign-in if not authenticated
     useEffect(() => {
         if (!user) {
             navigate("/signin");
         }
     }, [user, navigate]);
     if (!user) {
-        return null; // Render nothing while redirecting
+        return null;
     }
     return (_jsx("div", { className: "min-h-screen p-6 bg-gradient-to-b from-background to-secondary/10", children: _jsxs(motion.div, { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, className: "max-w-7xl mx-auto space-y-8", children: [_jsx(DashboardHeader, { userName: user.name || user.email || "User", activeSection: activeSection, onSectionChange: setActiveSection }), _jsxs("div", { className: "grid grid-cols-1 lg:grid-cols-4 gap-6", children: [_jsx("div", { className: "lg:col-span-3", children: sections[activeSection] }), _jsxs("div", { className: "space-y-6", children: [_jsx(BirthdayList, {}), _jsx(ProgressTracker, { items: progressItems })] })] })] }) }));
 };

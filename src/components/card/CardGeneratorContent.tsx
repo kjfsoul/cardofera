@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wand2, AlignLeft, AlignCenter, AlignRight, RefreshCw } from "lucide-react";
+import {
+  Wand2,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  RefreshCw,
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import CardForm from "./CardForm";
 import CardStyleSelector from "./CardStyleSelector";
@@ -23,7 +29,9 @@ const CardGeneratorContent = ({
 }: CardGeneratorProps) => {
   const [showImageSearch, setShowImageSearch] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null,
+  );
 
   const handleRetry = async () => {
     await handleGenerate();
@@ -79,14 +87,14 @@ const CardGeneratorContent = ({
               <div key={index} className="flex flex-col items-center">
                 <div className="w-full h-48 bg-gray-100 rounded-lg mb-2">
                   {generatedImages[index] && (
-                    <img 
-                      src={generatedImages[index]} 
-                      alt={`Generated option ${index + 1}`} 
+                    <img
+                      src={generatedImages[index]}
+                      alt={`Generated option ${index + 1}`}
                       className="w-full h-full object-cover rounded-lg"
                     />
                   )}
                 </div>
-                <Button 
+                <Button
                   variant={selectedImageIndex === index ? "default" : "outline"}
                   className="w-full"
                   onClick={() => handleImageSelect(index)}
@@ -97,7 +105,7 @@ const CardGeneratorContent = ({
               </div>
             ))}
           </div>
-          
+
           <div className="flex gap-2">
             <Button
               onClick={handleGenerate}
@@ -112,7 +120,7 @@ const CardGeneratorContent = ({
               Retry
             </Button>
           </div>
-          
+
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-medium mb-2">AI Generation Tips</h3>
             <ul className="text-sm space-y-1">
@@ -122,7 +130,7 @@ const CardGeneratorContent = ({
               <li>• Specify if you want text incorporated</li>
             </ul>
           </div>
-          
+
           {generationError && (
             <div className="text-red-500 text-sm">{generationError}</div>
           )}
@@ -140,23 +148,35 @@ const CardGeneratorContent = ({
             <h3 className="text-lg font-medium mb-2">Text Position</h3>
             <div className="flex gap-2">
               <Button
-                variant={cardData.textPosition === "left" ? "default" : "outline"}
+                variant={
+                  cardData.textPosition === "left" ? "default" : "outline"
+                }
                 size="sm"
-                onClick={() => setCardData({ ...cardData, textPosition: "left" })}
+                onClick={() =>
+                  setCardData({ ...cardData, textPosition: "left" })
+                }
               >
                 <AlignLeft className="h-4 w-4" />
               </Button>
               <Button
-                variant={cardData.textPosition === "center" ? "default" : "outline"}
+                variant={
+                  cardData.textPosition === "center" ? "default" : "outline"
+                }
                 size="sm"
-                onClick={() => setCardData({ ...cardData, textPosition: "center" })}
+                onClick={() =>
+                  setCardData({ ...cardData, textPosition: "center" })
+                }
               >
                 <AlignCenter className="h-4 w-4" />
               </Button>
               <Button
-                variant={cardData.textPosition === "right" ? "default" : "outline"}
+                variant={
+                  cardData.textPosition === "right" ? "default" : "outline"
+                }
                 size="sm"
-                onClick={() => setCardData({ ...cardData, textPosition: "right" })}
+                onClick={() =>
+                  setCardData({ ...cardData, textPosition: "right" })
+                }
               >
                 <AlignRight className="h-4 w-4" />
               </Button>
@@ -168,7 +188,9 @@ const CardGeneratorContent = ({
             <select
               className="w-full rounded-md border border-input bg-background px-3 py-2"
               value={cardData.fontFamily}
-              onChange={(e) => setCardData({ ...cardData, fontFamily: e.target.value })}
+              onChange={(e) =>
+                setCardData({ ...cardData, fontFamily: e.target.value })
+              }
             >
               {fonts.map((font) => (
                 <option key={font} value={font} style={{ fontFamily: font }}>
@@ -182,7 +204,9 @@ const CardGeneratorContent = ({
             <h3 className="text-lg font-medium mb-2">Font Size</h3>
             <Slider
               value={[cardData.fontSize]}
-              onValueChange={(value) => setCardData({ ...cardData, fontSize: value[0] })}
+              onValueChange={(value) =>
+                setCardData({ ...cardData, fontSize: value[0] })
+              }
               min={12}
               max={48}
               step={1}
@@ -199,7 +223,9 @@ const CardGeneratorContent = ({
         <h2 className="text-2xl font-semibold mb-4">4. Delivery Method</h2>
         <DeliverySelector
           selectedMethod={cardData.deliveryMethod}
-          onMethodSelect={(method) => setCardData({ ...cardData, deliveryMethod: method })}
+          onMethodSelect={(method) =>
+            setCardData({ ...cardData, deliveryMethod: method })
+          }
           isPremium={isPremium}
         />
       </Card>

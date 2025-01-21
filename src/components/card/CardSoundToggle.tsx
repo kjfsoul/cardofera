@@ -6,7 +6,10 @@ interface CardSoundToggleProps {
   onToggle: () => void;
 }
 
-const CardSoundToggle = ({ isSoundEnabled, onToggle }: CardSoundToggleProps) => {
+const CardSoundToggle = ({
+  isSoundEnabled,
+  onToggle,
+}: CardSoundToggleProps) => {
   return (
     <Button variant="outline" onClick={onToggle} className="flex-1">
       {isSoundEnabled ? (

@@ -22,7 +22,8 @@ const HeroSection = () => {
         transition={{ delay: 0.3 }}
         className="text-xl text-foreground/60 max-w-2xl mx-auto"
       >
-        Create personalized AI-powered birthday cards and find the perfect gifts for your loved ones
+        Create personalized AI-powered birthday cards and find the perfect gifts
+        for your loved ones
       </motion.p>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}

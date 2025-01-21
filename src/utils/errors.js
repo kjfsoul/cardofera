@@ -5,13 +5,15 @@ export class CentralErrorHandler {
         const errorData = {
             timestamp: new Date().toISOString(),
             context,
-            error: error instanceof Error ? {
-                name: error.name,
-                message: error.message,
-                stack: error.stack
-            } : error
+            error: error instanceof Error
+                ? {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack,
+                }
+                : error,
         };
-        console.error('Application Error:', errorData);
+        console.error("Application Error:", errorData);
         // TODO: Add Supabase logging integration
     }
     static async handleApiError(operation, context) {
@@ -25,7 +27,7 @@ export class CentralErrorHandler {
                 attempts++;
                 if (attempts < this.MAX_RETRIES) {
                     const delay = this.BASE_DELAY * Math.pow(2, attempts);
-                    await new Promise(resolve => setTimeout(resolve, delay));
+                    await new Promise((resolve) => setTimeout(resolve, delay));
                 }
             }
         }

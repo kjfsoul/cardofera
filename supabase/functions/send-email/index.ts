@@ -1,18 +1,21 @@
-import http from 'http';
-import fetch from 'node-fetch';
-import dotenv from 'dotenv';
+import http from "http";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
 if (!RESEND_API_KEY) {
-  throw new Error('RESEND_API_KEY is not defined in the environment variables.');
+  throw new Error(
+    "RESEND_API_KEY is not defined in the environment variables.",
+  );
 }
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface EmailRequest {
@@ -30,7 +33,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
-    let body = '';
+    let body = "";
     for await (const chunk of req) {
       body += chunk;
     }
@@ -47,11 +50,13 @@ const server = http.createServer(async (req, res) => {
         to: emailRequest.to,
         subject: emailRequest.subject,
         html: emailRequest.html,
-        attachments: [{
-          filename: "birthday-card.png",
-          content: emailRequest.cardImage.split(",")[1],
-          content_type: "image/png",
-        }],
+        attachments: [
+          {
+            filename: "birthday-card.png",
+            content: emailRequest.cardImage.split(",")[1],
+            content_type: "image/png",
+          },
+        ],
       }),
     });
 

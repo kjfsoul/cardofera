@@ -5,7 +5,7 @@ export const trackEvent = async (eventType, cardId, eventData) => {
         const { error } = await supabase.from("card_analytics").insert({
             event_type: eventType,
             card_id: cardId,
-            event_data: eventData
+            event_data: eventData,
         });
         if (error)
             throw error;

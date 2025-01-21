@@ -1,38 +1,38 @@
 import { useEffect } from "react";
 import * as THREE from "three";
-export const CardLighting = ({ scene, style = 'modern' }) => {
+export const CardLighting = ({ scene, style = "modern", }) => {
     useEffect(() => {
         const getLightingConfig = () => {
             switch (style) {
-                case 'modern':
+                case "modern":
                     return {
                         ambient: { color: 0xffffff, intensity: 0.5 },
                         main: { color: 0xffffff, intensity: 1, position: [5, 5, 5] },
-                        fill: { color: 0xffffff, intensity: 0.3, position: [-5, 0, 5] }
+                        fill: { color: 0xffffff, intensity: 0.3, position: [-5, 0, 5] },
                     };
-                case 'classic':
+                case "classic":
                     return {
                         ambient: { color: 0xfaf3e0, intensity: 0.6 },
                         main: { color: 0xfff8e1, intensity: 0.8, position: [4, 4, 4] },
-                        fill: { color: 0xfff0c2, intensity: 0.4, position: [-4, 2, 4] }
+                        fill: { color: 0xfff0c2, intensity: 0.4, position: [-4, 2, 4] },
                     };
-                case 'playful':
+                case "playful":
                     return {
                         ambient: { color: 0xfff0f0, intensity: 0.7 },
                         main: { color: 0xffe0e0, intensity: 1.2, position: [6, 6, 6] },
-                        fill: { color: 0xffd0d0, intensity: 0.5, position: [-6, 0, 6] }
+                        fill: { color: 0xffd0d0, intensity: 0.5, position: [-6, 0, 6] },
                     };
-                case 'elegant':
+                case "elegant":
                     return {
                         ambient: { color: 0xf8f8f8, intensity: 0.4 },
                         main: { color: 0xffffff, intensity: 0.9, position: [5, 5, 5] },
-                        fill: { color: 0xf0f0f0, intensity: 0.3, position: [-5, 1, 5] }
+                        fill: { color: 0xf0f0f0, intensity: 0.3, position: [-5, 1, 5] },
                     };
                 default:
                     return {
                         ambient: { color: 0xffffff, intensity: 0.5 },
                         main: { color: 0xffffff, intensity: 1, position: [5, 5, 5] },
-                        fill: { color: 0xffffff, intensity: 0.3, position: [-5, 0, 5] }
+                        fill: { color: 0xffffff, intensity: 0.3, position: [-5, 0, 5] },
                     };
             }
         };

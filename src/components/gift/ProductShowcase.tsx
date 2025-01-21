@@ -51,20 +51,27 @@ const mockProducts: Product[] = [
 
 const mockRecipients: Recipient[] = [
   { id: "1", name: "Sarah Johnson", relationship: "Sister" },
-  { id: "2", name: "Mike Smith", relationship: "Friend", avatar: "/placeholder.svg" },
+  {
+    id: "2",
+    name: "Mike Smith",
+    relationship: "Friend",
+    avatar: "/placeholder.svg",
+  },
   { id: "3", name: "Emma Davis", relationship: "Colleague" },
 ];
 
 const ProductShowcase = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null);
+  const [selectedRecipient, setSelectedRecipient] = useState<string | null>(
+    null,
+  );
   const [checkedProducts, setCheckedProducts] = useState<string[]>([]);
 
   const toggleFavorite = (productId: string) => {
     setFavorites((prev) =>
       prev.includes(productId)
         ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
+        : [...prev, productId],
     );
     toast.success("Favorites updated!");
   };
@@ -73,7 +80,7 @@ const ProductShowcase = () => {
     setCheckedProducts((prev) =>
       prev.includes(productId)
         ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
+        : [...prev, productId],
     );
     toast.success("Gift checklist updated!");
   };
@@ -90,14 +97,19 @@ const ProductShowcase = () => {
           {mockRecipients.map((recipient) => (
             <Button
               key={recipient.id}
-              variant={selectedRecipient === recipient.id ? "default" : "outline"}
+              variant={
+                selectedRecipient === recipient.id ? "default" : "outline"
+              }
               className="flex items-center gap-2 min-w-[200px] p-4"
               onClick={() => setSelectedRecipient(recipient.id)}
             >
               <Avatar>
                 <AvatarImage src={recipient.avatar} alt={recipient.name} />
                 <AvatarFallback>
-                  {recipient.name.split(" ").map((n) => n[0]).join("")}
+                  {recipient.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="text-left">

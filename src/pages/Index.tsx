@@ -17,13 +17,15 @@ import BirthdayList from "@/components/contacts/BirthdayList";
 import ProgressTracker from "@/components/ProgressTracker";
 import { AuraColor } from "@/types/gift";
 
+export type SectionKey = 'cards' | 'gifts' | 'calendar' | 'recipients';
+
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState("cards");
+  const [activeSection, setActiveSection] = useState<SectionKey>("cards");
   const [selectedAura, setSelectedAura] = useState<AuraColor>();
 
-  const sections = {
+  const sections: Record<SectionKey, JSX.Element> = {
     cards: <CardGenerator />,
     gifts: (
       <div className="space-y-8">
@@ -60,7 +62,7 @@ const Index = () => {
     { id: "api", label: "Gift API", status: "pending" as const },
   ];
 
-  const handleFeatureClick = (section: string) => {
+  const handleFeatureClick = (section: SectionKey) => {
     if (!user) {
       navigate("/signup");
     } else {
@@ -70,7 +72,6 @@ const Index = () => {
     }
   };
 
-  // Redirect to sign-in if not authenticated
   useEffect(() => {
     if (!user) {
       navigate("/signin");
@@ -78,7 +79,7 @@ const Index = () => {
   }, [user, navigate]);
 
   if (!user) {
-    return null; // Render nothing while redirecting
+    return null;
   }
 
   return (
@@ -93,12 +94,12 @@ const Index = () => {
           activeSection={activeSection}
           onSectionChange={setActiveSection}
         />
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3">
             {sections[activeSection]}
           </div>
-          
+
           <div className="space-y-6">
             <BirthdayList />
             <ProgressTracker items={progressItems} />

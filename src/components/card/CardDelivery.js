@@ -10,7 +10,7 @@ import { Calendar as CalendarIcon, Send, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import html2canvas from "html2canvas";
-export const CardDelivery = ({ cardRef, recipientEmail, message }) => {
+export const CardDelivery = ({ cardRef, recipientEmail, message, }) => {
     const [scheduledDate, setScheduledDate] = useState();
     const [isScheduling, setIsScheduling] = useState(false);
     const [isSending, setIsSending] = useState(false);
@@ -47,7 +47,7 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }) => {
         }
         setIsSending(true);
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user }, } = await supabase.auth.getUser();
             if (!user) {
                 toast.error("Please sign in to send cards");
                 return;
@@ -101,7 +101,9 @@ export const CardDelivery = ({ cardRef, recipientEmail, message }) => {
             setIsSending(false);
         }
     };
-    return (_jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "flex flex-col space-y-2", children: [_jsx(Label, { htmlFor: "recipientEmail", children: "Recipient's Email" }), _jsx(Input, { id: "recipientEmail", type: "email", value: recipientEmail, disabled: true, className: "bg-muted" })] }), _jsx("div", { className: "flex items-center space-x-2", children: _jsxs(Popover, { open: isScheduling, onOpenChange: setIsScheduling, children: [_jsx(PopoverTrigger, { asChild: true, children: _jsxs(Button, { variant: "outline", className: "w-[240px] justify-start text-left font-normal", children: [_jsx(CalendarIcon, { className: "mr-2 h-4 w-4" }), scheduledDate ? format(scheduledDate, "PPP") : "Schedule delivery"] }) }), _jsx(PopoverContent, { className: "w-auto p-0", align: "start", children: _jsx(Calendar, { mode: "single", selected: scheduledDate, onSelect: (date) => {
+    return (_jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "flex flex-col space-y-2", children: [_jsx(Label, { htmlFor: "recipientEmail", children: "Recipient's Email" }), _jsx(Input, { id: "recipientEmail", type: "email", value: recipientEmail, disabled: true, className: "bg-muted" })] }), _jsx("div", { className: "flex items-center space-x-2", children: _jsxs(Popover, { open: isScheduling, onOpenChange: setIsScheduling, children: [_jsx(PopoverTrigger, { asChild: true, children: _jsxs(Button, { variant: "outline", className: "w-[240px] justify-start text-left font-normal", children: [_jsx(CalendarIcon, { className: "mr-2 h-4 w-4" }), scheduledDate
+                                        ? format(scheduledDate, "PPP")
+                                        : "Schedule delivery"] }) }), _jsx(PopoverContent, { className: "w-auto p-0", align: "start", children: _jsx(Calendar, { mode: "single", selected: scheduledDate, onSelect: (date) => {
                                     setScheduledDate(date);
                                     setIsScheduling(false);
                                 }, disabled: (date) => date < new Date(), initialFocus: true }) })] }) }), _jsxs("div", { className: "flex space-x-2", children: [_jsxs(Button, { className: "flex-1", onClick: handleSendCard, disabled: isSending, children: [_jsx(Send, { className: "mr-2 h-4 w-4" }), isSending ? "Sending..." : scheduledDate ? "Schedule" : "Send Now"] }), _jsxs(Button, { variant: "outline", onClick: handleDownload, disabled: isSending, children: [_jsx(Download, { className: "mr-2 h-4 w-4" }), "Download"] })] })] }));

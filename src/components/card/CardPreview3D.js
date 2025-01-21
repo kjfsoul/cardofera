@@ -2,7 +2,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { toast } from "sonner";
-const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }) => {
+const CardPreview3D = ({ imageUrl, text, enableSound = false, style = "modern", }) => {
     const mountRef = useRef(null);
     const sceneRef = useRef(null);
     const cameraRef = useRef(null);
@@ -56,18 +56,18 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
                 side: THREE.DoubleSide,
             });
             switch (style) {
-                case 'classic':
+                case "classic":
                     baseMaterial.color = new THREE.Color(0xf5e6d3);
                     baseMaterial.metalness = 0.05;
                     baseMaterial.roughness = 0.4;
                     break;
-                case 'playful':
+                case "playful":
                     baseMaterial.color = new THREE.Color(0xffffff);
                     baseMaterial.metalness = 0.2;
                     baseMaterial.roughness = 0.1;
                     baseMaterial.clearcoat = 0.5;
                     break;
-                case 'elegant':
+                case "elegant":
                     baseMaterial.color = new THREE.Color(0xf0f0f0);
                     baseMaterial.metalness = 0.3;
                     baseMaterial.roughness = 0.1;
@@ -120,7 +120,8 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
         const handleResize = () => {
             if (!mountRef.current || !camera || !renderer)
                 return;
-            camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+            camera.aspect =
+                mountRef.current.clientWidth / mountRef.current.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
         };
@@ -152,8 +153,10 @@ const CardPreview3D = ({ imageUrl, text, enableSound = false, style = 'modern' }
             if (cardRef.current) {
                 texture.colorSpace = THREE.SRGBColorSpace;
                 texture.anisotropy = 16;
-                cardRef.current.material.map = texture;
-                cardRef.current.material.needsUpdate = true;
+                cardRef.current.material.map =
+                    texture;
+                cardRef.current.material.needsUpdate =
+                    true;
             }
         }, undefined, (error) => {
             console.error("Error loading texture:", error);

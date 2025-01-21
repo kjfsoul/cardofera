@@ -6,28 +6,31 @@ interface CardStyleSelectorProps {
   onStyleSelect: (style: string) => void;
 }
 
-const CardStyleSelector = ({ selectedStyle, onStyleSelect }: CardStyleSelectorProps) => {
+const CardStyleSelector = ({
+  selectedStyle,
+  onStyleSelect,
+}: CardStyleSelectorProps) => {
   const styles = [
     {
       name: "modern",
       preview: "/modern-preview.svg",
-      description: "Clean lines and minimalist design"
+      description: "Clean lines and minimalist design",
     },
     {
       name: "classic",
       preview: "/classic-preview.svg",
-      description: "Timeless elegance with traditional elements"
+      description: "Timeless elegance with traditional elements",
     },
     {
       name: "playful",
       preview: "/playful-preview.svg",
-      description: "Bright colors and fun patterns"
+      description: "Bright colors and fun patterns",
     },
     {
       name: "elegant",
       preview: "/elegant-preview.svg",
-      description: "Sophisticated and refined design"
-    }
+      description: "Sophisticated and refined design",
+    },
   ];
 
   return (
@@ -42,10 +45,11 @@ const CardStyleSelector = ({ selectedStyle, onStyleSelect }: CardStyleSelectorPr
               "group relative p-4 rounded-lg border text-center capitalize transition-colors overflow-hidden",
               selectedStyle === style.name
                 ? "border-primary bg-primary/10"
-                : "border-input hover:bg-accent hover:text-accent-foreground"
+                : "border-input hover:bg-accent hover:text-accent-foreground",
             )}
           >
-            <div className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity"
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-20 group-hover:opacity-30 transition-opacity"
               style={{ backgroundImage: `url(${style.preview})` }}
             />
             <div className="relative z-10">

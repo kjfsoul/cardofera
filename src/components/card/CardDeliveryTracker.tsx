@@ -57,7 +57,10 @@ export const CardDeliveryTracker = () => {
               </div>
               <div className="text-right text-sm text-muted-foreground">
                 {delivery.scheduled_date ? (
-                  <p>Scheduled for: {format(new Date(delivery.scheduled_date), "PPP")}</p>
+                  <p>
+                    Scheduled for:{" "}
+                    {format(new Date(delivery.scheduled_date), "PPP")}
+                  </p>
                 ) : (
                   <p>Created: {format(new Date(delivery.created_at), "PPP")}</p>
                 )}

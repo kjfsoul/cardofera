@@ -13,21 +13,23 @@ const SponsoredGame = () => {
   const queryClient = useQueryClient();
 
   const { data: gamePlays } = useQuery({
-    queryKey: ['game_plays'],
+    queryKey: ["game_plays"],
     queryFn: async () => {
-      const today = new Date().toISOString().split('T')[0];
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const today = new Date().toISOString().split("T")[0];
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
-        .from('game_plays')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('played_at', today);
-      
+        .from("game_plays")
+        .select("*")
+        .eq("user_id", user.id)
+        .gte("played_at", today);
+
       if (error) throw error;
       return data;
-    }
+    },
   });
 
   useEffect(() => {
@@ -48,8 +50,10 @@ const SponsoredGame = () => {
 
   const playGameMutation = useMutation({
     mutationFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
 
       const discount = Math.floor(Math.random() * 31) + 20; // 20-50%
       const code = generateUniqueCode();
@@ -57,22 +61,22 @@ const SponsoredGame = () => {
 
       // Create discount code
       const { error: discountError } = await supabase
-        .from('discount_codes')
+        .from("discount_codes")
         .insert({
           code,
           percentage: discount,
           expires_at: expiresAt,
-          user_id: user.id
+          user_id: user.id,
         });
 
       if (discountError) throw discountError;
 
       // Record game play
       const { error: gamePlayError } = await supabase
-        .from('game_plays')
+        .from("game_plays")
         .insert({
           discount_won: discount,
-          user_id: user.id
+          user_id: user.id,
         });
 
       if (gamePlayError) throw gamePlayError;
@@ -80,7 +84,7 @@ const SponsoredGame = () => {
       return { discount, code };
     },
     onSuccess: ({ discount, code }) => {
-      queryClient.invalidateQueries({ queryKey: ['game_plays'] });
+      queryClient.invalidateQueries({ queryKey: ["game_plays"] });
       toast.success(
         <div className="flex flex-col items-center gap-2">
           <Trophy className="h-6 w-6 text-yellow-400" />
@@ -88,13 +92,13 @@ const SponsoredGame = () => {
           <span className="text-sm font-mono bg-primary/10 px-2 py-1 rounded">
             Code: {code}
           </span>
-        </div>
+        </div>,
       );
     },
     onError: (error) => {
-      console.error('Error playing game:', error);
+      console.error("Error playing game:", error);
       toast.error("Failed to play game. Please try again.");
-    }
+    },
   });
 
   const handleSpin = async () => {

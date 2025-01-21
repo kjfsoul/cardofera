@@ -16,15 +16,13 @@ const GiftQuiz = () => {
     const [interests, setInterests] = useState([]);
     const [matchScore, setMatchScore] = useState(0);
     const { data: contacts } = useQuery({
-        queryKey: ['contacts'],
+        queryKey: ["contacts"],
         queryFn: async () => {
-            const { data, error } = await supabase
-                .from('contacts')
-                .select('*');
+            const { data, error } = await supabase.from("contacts").select("*");
             if (error)
                 throw error;
             return data;
-        }
+        },
     });
     useEffect(() => {
         if (selectedContact) {

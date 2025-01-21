@@ -6,20 +6,22 @@ import { CardMaterial } from "./CardMaterial";
 import { CardAnimation } from "./CardAnimation";
 import { toast } from "sonner";
 
+type CardStyle = 'modern' | 'classic' | 'playful' | 'elegant';
+
 interface CardPreview3DProps {
   imageUrl?: string;
   text?: string;
   enableSound?: boolean;
-  style?: string;
+  style: CardStyle;
   onError?: () => void;
 }
 
-const CardPreview3D = ({ 
-  imageUrl, 
-  text, 
+const CardPreview3D = ({
+  imageUrl,
+  text,
   enableSound = false,
-  style = 'modern',
-  onError
+  style = "modern",
+  onError,
 }: CardPreview3DProps) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -28,45 +30,44 @@ const CardPreview3D = ({
   useEffect(() => {
     if (!sceneRef.current) return;
 
-    // Card mesh setup
     const geometry = new THREE.BoxGeometry(3, 4, 0.1);
     const getMaterialProperties = () => {
       switch (style) {
-        case 'modern':
+        case "modern":
           return {
             color: 0xffffff,
             metalness: 0.1,
             roughness: 0.2,
             reflectivity: 0.5,
             clearcoat: 0.3,
-            clearcoatRoughness: 0.2
+            clearcoatRoughness: 0.2,
           };
-        case 'classic':
+        case "classic":
           return {
             color: 0xfaf3e0,
             metalness: 0.05,
             roughness: 0.3,
             reflectivity: 0.4,
             clearcoat: 0.2,
-            clearcoatRoughness: 0.3
+            clearcoatRoughness: 0.3,
           };
-        case 'playful':
+        case "playful":
           return {
             color: 0xff9a9e,
             metalness: 0,
             roughness: 0.4,
             reflectivity: 0.3,
             clearcoat: 0.1,
-            clearcoatRoughness: 0.4
+            clearcoatRoughness: 0.4,
           };
-        case 'elegant':
+        case "elegant":
           return {
             color: 0xf8f8f8,
             metalness: 0.15,
             roughness: 0.15,
             reflectivity: 0.6,
             clearcoat: 0.4,
-            clearcoatRoughness: 0.15
+            clearcoatRoughness: 0.15,
           };
         default:
           return {
@@ -75,7 +76,7 @@ const CardPreview3D = ({
             roughness: 0.2,
             reflectivity: 0.5,
             clearcoat: 0.3,
-            clearcoatRoughness: 0.2
+            clearcoatRoughness: 0.2,
           };
       }
     };
@@ -92,7 +93,6 @@ const CardPreview3D = ({
     sceneRef.current.add(card);
     cardRef.current = card;
 
-    // Ground plane
     const groundGeometry = new THREE.PlaneGeometry(20, 20);
     const groundMaterial = new THREE.ShadowMaterial({
       opacity: 0.2,
@@ -104,7 +104,6 @@ const CardPreview3D = ({
     ground.receiveShadow = true;
     sceneRef.current.add(ground);
 
-    // Audio setup
     if (enableSound) {
       audioRef.current = new Audio("/card-open.mp3");
     }
@@ -114,33 +113,38 @@ const CardPreview3D = ({
     };
   }, [enableSound]);
 
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
-      if (!mountRef.current || !cameraRef.current || !rendererRef.current) return;
-      
-      cameraRef.current.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+      if (!mountRef.current || !cameraRef.current || !rendererRef.current)
+        return;
+
+      cameraRef.current.aspect =
+        mountRef.current.clientWidth / mountRef.current.clientHeight;
       cameraRef.current.updateProjectionMatrix();
-      rendererRef.current.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      rendererRef.current.setSize(
+        mountRef.current.clientWidth,
+        mountRef.current.clientHeight,
+      );
     };
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Handle sound interaction
   const handleInteraction = () => {
     if (enableSound && audioRef.current) {
       audioRef.current.play().catch(() => {
-        toast.error("Unable to play sound. Please check your browser settings.");
+        toast.error(
+          "Unable to play sound. Please check your browser settings.",
+        );
         onError?.();
       });
     }
   };
 
   return (
-    <div 
-      ref={mountRef} 
+    <div
+      ref={mountRef}
       className="w-full aspect-[4/3] rounded-lg overflow-hidden border border-border bg-card shadow-xl"
       role="img"
       aria-label="3D card preview"
@@ -150,20 +154,23 @@ const CardPreview3D = ({
         <>
           <CardLighting scene={sceneRef.current} />
           {cardRef.current && (
-            <CardMaterial 
-              mesh={cardRef.current} 
+            <CardMaterial
+              mesh={cardRef.current}
               imageUrl={imageUrl}
-              style={style}
+              style={style as CardStyle}
             />
           )}
-          {cardRef.current && rendererRef.current && sceneRef.current && cameraRef.current && (
-            <CardAnimation
-              card={cardRef.current}
-              renderer={rendererRef.current}
-              scene={sceneRef.current}
-              camera={cameraRef.current}
-            />
-          )}
+          {cardRef.current &&
+            rendererRef.current &&
+            sceneRef.current &&
+            cameraRef.current && (
+              <CardAnimation
+                card={cardRef.current}
+                renderer={rendererRef.current}
+                scene={sceneRef.current}
+                camera={cameraRef.current}
+              />
+            )}
         </>
       )}
     </div>

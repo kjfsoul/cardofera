@@ -5,7 +5,7 @@ export const useContacts = () => {
         queryKey: ["contacts"],
         queryFn: async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session }, } = await supabase.auth.getSession();
                 if (!session) {
                     return [];
                 }

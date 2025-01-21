@@ -9,7 +9,11 @@ interface MessagePreviewProps {
   maxLength?: number;
 }
 
-const MessagePreview = ({ message, style, maxLength = 500 }: MessagePreviewProps) => {
+const MessagePreview = ({
+  message,
+  style,
+  maxLength = 500,
+}: MessagePreviewProps) => {
   const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
@@ -42,7 +46,11 @@ const MessagePreview = ({ message, style, maxLength = 500 }: MessagePreviewProps
             exit={{ opacity: 0, y: -20 }}
             className={cn("prose max-w-none", getStyleClasses())}
           >
-            {message || <span className="text-muted-foreground">Your message will appear here...</span>}
+            {message || (
+              <span className="text-muted-foreground">
+                Your message will appear here...
+              </span>
+            )}
           </motion.div>
         </AnimatePresence>
       </Card>

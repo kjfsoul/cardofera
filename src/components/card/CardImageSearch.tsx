@@ -22,12 +22,15 @@ const CardImageSearch = ({ onImageSelect }: CardImageSearchProps) => {
 
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-image', {
-        body: { 
-          prompt: searchQuery,
-          num_images: 3 // Request 3 images
-        }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "generate-image",
+        {
+          body: {
+            prompt: searchQuery,
+            num_images: 3, // Request 3 images
+          },
+        },
+      );
 
       if (error) throw error;
 
@@ -37,7 +40,7 @@ const CardImageSearch = ({ onImageSelect }: CardImageSearchProps) => {
         toast.success("AI images generated successfully!");
       }
     } catch (error) {
-      console.error('Error generating images:', error);
+      console.error("Error generating images:", error);
       toast.error("Failed to generate images. Please try again.");
     } finally {
       setIsGenerating(false);

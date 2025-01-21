@@ -1,12 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useState } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const CalendarIntegration = () => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date(),
+  );
   const [isConnecting, setIsConnecting] = useState(false);
 
   const handleGoogleCalendarConnect = async () => {

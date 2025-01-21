@@ -8,7 +8,9 @@ export const useContacts = () => {
     queryKey: ["contacts"],
     queryFn: async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session) {
           return [];
         }
@@ -23,7 +25,7 @@ export const useContacts = () => {
           throw error;
         }
 
-        return data as Contact[] || [];
+        return (data as Contact[]) || [];
       } catch (err) {
         console.error("Error in contacts query:", err);
         throw err;

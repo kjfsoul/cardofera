@@ -12,100 +12,106 @@ import { AuraColor } from "@/types/gift";
 
 const ContactsList = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editingContact, setEditingContact] = useState<Partial<Contact> | null>(null);
+  const [editingContact, setEditingContact] = useState<Partial<Contact> | undefined>(undefined);
   const queryClient = useQueryClient();
 
   const { data: contacts, isLoading } = useQuery({
-    queryKey: ['contacts'],
+    queryKey: ["contacts"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('contacts')
-        .select('*')
-        .order('name');
-      
+        .from("contacts")
+        .select("*")
+        .order("name");
+
       if (error) throw error;
-      return data.map(contact => ({
+      return data.map((contact) => ({
         ...contact,
-        birthday: contact.birthday ? new Date(contact.birthday) : null
+        birthday: contact.birthday ? new Date(contact.birthday) : null,
       })) as Contact[];
-    }
+    },
   });
 
   const addContactMutation = useMutation({
-    mutationFn: async (newContact: Omit<Contact, "id" | "created_at" | "user_id">) => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+    mutationFn: async (
+      newContact: Omit<Contact, "id" | "created_at" | "user_id">,
+    ) => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
       if (userError) throw userError;
       if (!user) throw new Error("User not authenticated");
 
       const { data, error } = await supabase
-        .from('contacts')
-        .insert([{
-          ...newContact,
-          birthday: newContact.birthday?.toISOString().split('T')[0],
-          user_id: user.id
-        }])
+        .from("contacts")
+        .insert([
+          {
+            ...newContact,
+            birthday: newContact.birthday?.toISOString().split("T")[0],
+            user_id: user.id,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success('Contact added successfully');
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contact added successfully");
       setIsEditing(false);
-      setEditingContact(null);
+      setEditingContact(undefined);
     },
     onError: (error) => {
-      toast.error('Failed to add contact: ' + error.message);
-    }
+      toast.error("Failed to add contact: " + error.message);
+    },
   });
 
   const updateContactMutation = useMutation({
     mutationFn: async (contact: Partial<Contact>) => {
       const { data, error } = await supabase
-        .from('contacts')
+        .from("contacts")
         .update({
           ...contact,
-          birthday: contact.birthday?.toISOString().split('T')[0]
+          birthday: contact.birthday?.toISOString().split("T")[0],
         })
-        .eq('id', contact.id)
+        .eq("id", contact.id)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success('Contact updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contact updated successfully");
       setIsEditing(false);
-      setEditingContact(null);
+      setEditingContact(undefined);
     },
     onError: (error) => {
-      toast.error('Failed to update contact: ' + error.message);
-    }
+      toast.error("Failed to update contact: " + error.message);
+    },
   });
 
   const deleteContactMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('contacts')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await supabase.from("contacts").delete().eq("id", id);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] });
-      toast.success('Contact deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contact deleted successfully");
     },
     onError: (error) => {
-      toast.error('Failed to delete contact: ' + error.message);
-    }
+      toast.error("Failed to delete contact: " + error.message);
+    },
   });
 
-  const handleSubmit = async (contact: Omit<Contact, "id" | "created_at" | "user_id">) => {
+  const handleSubmit = async (
+    contact: Omit<Contact, "id" | "created_at" | "user_id">,
+  ) => {
     if (editingContact?.id) {
       updateContactMutation.mutate({ ...contact, id: editingContact.id });
     } else {
@@ -114,8 +120,7 @@ const ContactsList = () => {
   };
 
   const handleQuickSend = async (contactId: string, auraColor: AuraColor) => {
-    // This will be connected to the gift recommendation system
-    toast.success('Opening gift recommendations...');
+    toast.success("Opening gift recommendations...");
   };
 
   return (
@@ -140,7 +145,7 @@ const ContactsList = () => {
               onSubmit={handleSubmit}
               onCancel={() => {
                 setIsEditing(false);
-                setEditingContact(null);
+                setEditingContact(undefined);
               }}
             />
           </div>

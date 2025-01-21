@@ -36,7 +36,9 @@ const SignUp = () => {
       }
 
       if (data.user) {
-        toast.success("Successfully signed up! Please check your email to confirm your account.");
+        toast.success(
+          "Successfully signed up! Please check your email to confirm your account.",
+        );
         navigate("/"); // Redirect to the Index page
       }
     } catch (error: any) {
@@ -103,11 +105,7 @@ const SignUp = () => {
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Signing up..." : "Sign Up"}
           </Button>
         </form>

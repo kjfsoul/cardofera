@@ -6,7 +6,7 @@ import { Wand2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-const CardImagePrompt = ({ onImageGenerate, isGenerating }) => {
+const CardImagePrompt = ({ onImageGenerate, isGenerating, }) => {
     const [prompt, setPrompt] = useState("");
     const [rateLimitError, setRateLimitError] = useState(null);
     const handleGenerate = async () => {
@@ -16,12 +16,12 @@ const CardImagePrompt = ({ onImageGenerate, isGenerating }) => {
         }
         try {
             setRateLimitError(null);
-            const { data, error } = await supabase.functions.invoke('generate-image', {
-                body: { prompt }
+            const { data, error } = await supabase.functions.invoke("generate-image", {
+                body: { prompt },
             });
             if (error) {
                 // Check if it's a rate limit error (status 429)
-                const errorBody = JSON.parse(error.message || '{}');
+                const errorBody = JSON.parse(error.message || "{}");
                 if (errorBody.status === 429) {
                     setRateLimitError("Rate limit reached. Please wait a minute before trying again.");
                     return;

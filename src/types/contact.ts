@@ -11,7 +11,7 @@ export interface Contact {
 
 export interface Recipient {
   name: string;
-  email?: string;
+  email: string;
 }
 
 export interface RecipientSelectProps {

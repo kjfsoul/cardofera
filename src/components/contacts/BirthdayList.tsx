@@ -49,7 +49,9 @@ const auraCategories = {
 
 const BirthdayList = () => {
   const handleQuickSend = (contact: Contact) => {
-    toast.success(`Generating surprise ${auraCategories[contact.auraColor as keyof typeof auraCategories]} for ${contact.name}!`);
+    toast.success(
+      `Generating surprise ${auraCategories[contact.auraColor as keyof typeof auraCategories]} for ${contact.name}!`,
+    );
   };
 
   const getDaysUntilBirthday = (birthday: string) => {
@@ -70,7 +72,11 @@ const BirthdayList = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {mockContacts
-          .sort((a, b) => getDaysUntilBirthday(a.birthday) - getDaysUntilBirthday(b.birthday))
+          .sort(
+            (a, b) =>
+              getDaysUntilBirthday(a.birthday) -
+              getDaysUntilBirthday(b.birthday),
+          )
           .map((contact) => (
             <div
               key={contact.id}
@@ -80,21 +86,33 @@ const BirthdayList = () => {
                 <Avatar>
                   <AvatarImage src={contact.avatar} />
                   <AvatarFallback>
-                    {contact.name.split(" ").map((n) => n[0]).join("")}
+                    {contact.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <h3 className="font-medium">{contact.name}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {contact.relationship} • {getDaysUntilBirthday(contact.birthday)} days away
+                    {contact.relationship} •{" "}
+                    {getDaysUntilBirthday(contact.birthday)} days away
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <div
                       className={`w-3 h-3 rounded-full bg-${contact.auraColor}-500`}
-                      title={auraCategories[contact.auraColor as keyof typeof auraCategories]}
+                      title={
+                        auraCategories[
+                          contact.auraColor as keyof typeof auraCategories
+                        ]
+                      }
                     />
                     <span className="text-xs text-muted-foreground">
-                      {auraCategories[contact.auraColor as keyof typeof auraCategories]}
+                      {
+                        auraCategories[
+                          contact.auraColor as keyof typeof auraCategories
+                        ]
+                      }
                     </span>
                   </div>
                 </div>

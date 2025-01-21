@@ -7,7 +7,7 @@ import { Recipient } from "../../types/contact";
 
 interface CardFormProps {
   cardData: {
-    recipientName: Recipient;
+    recipient: Recipient;
     occasion: string;
     message: string;
     style: string;
@@ -44,7 +44,7 @@ const CardForm = ({
 
   const handleReset = () => {
     setCardData({
-      recipientName: { name: "", email: "" },
+      recipient: { name: "", email: "" },
       occasion: "birthday",
       message: "",
       style: "modern",
@@ -53,7 +53,7 @@ const CardForm = ({
   };
 
   const handleAutoSuggest = () => {
-    const suggestedMessage = `Dear ${cardData.recipientName.name},\nWishing you a wonderful ${cardData.occasion}!`;
+    const suggestedMessage = `Dear ${cardData.recipient.name},\nWishing you a wonderful ${cardData.occasion}!`;
     setCardData({ ...cardData, message: suggestedMessage });
   };
 
@@ -73,10 +73,8 @@ const CardForm = ({
       </div>
 
       <RecipientSelect
-        value={cardData.recipientName}
-        onChange={(value) =>
-          setCardData({ ...cardData, recipientName: value })
-        }
+        value={cardData.recipient}
+        onChange={(value) => setCardData({ ...cardData, recipient: value })}
       />
 
       <div className="space-y-2">
@@ -115,7 +113,9 @@ const CardForm = ({
         <Textarea
           id="message"
           value={cardData.message}
-          onChange={(e) => setCardData({ ...cardData, message: e.target.value })}
+          onChange={(e) =>
+            setCardData({ ...cardData, message: e.target.value })
+          }
           placeholder="Enter your message or click Auto-Suggest"
           className="min-h-[100px]"
         />

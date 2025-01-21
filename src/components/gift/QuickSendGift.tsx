@@ -28,7 +28,7 @@ const QuickSendGift = ({ recipientName, onSend }: QuickSendGiftProps) => {
         <div className="flex flex-col items-center gap-2">
           <Sparkles className="h-6 w-6 text-yellow-400" />
           <span>Gift sent successfully to {recipientName}!</span>
-        </div>
+        </div>,
       );
     } catch (error) {
       toast.error("Failed to send gift. Please try again.");
@@ -43,7 +43,7 @@ const QuickSendGift = ({ recipientName, onSend }: QuickSendGiftProps) => {
         selectedColor={selectedColor}
         onColorSelect={setSelectedColor}
       />
-      
+
       {selectedColor && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}

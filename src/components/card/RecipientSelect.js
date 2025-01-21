@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useState, useEffect } from "react";
 import { Command, CommandInput, CommandList } from "../ui/command";
-import { Popover, PopoverContent, PopoverTrigger, } from "../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useContacts } from "../../hooks/useContacts";
@@ -15,7 +15,10 @@ const RecipientSelect = ({ value, onChange }) => {
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [newContact, setNewContact] = useState({ name: "", email: "" });
     const [isManualEntry, setIsManualEntry] = useState(false);
-    const [manualRecipient, setManualRecipient] = useState({ name: "", email: "" });
+    const [manualRecipient, setManualRecipient] = useState({
+        name: "",
+        email: "unknown@example.com",
+    });
     const { data: contacts = [], isLoading, error } = useContacts();
     const [localRecipients, setLocalRecipients] = useState([]);
     // Load local recipients on mount
@@ -27,10 +30,13 @@ const RecipientSelect = ({ value, onChange }) => {
     }, []);
     // Convert contacts to recipients
     const allRecipients = [
-        ...contacts.map(contact => ({ name: contact.name, email: contact.email })),
-        ...localRecipients
+        ...contacts.map((contact) => ({
+            name: contact.name,
+            email: contact.email || "unknown@example.com",
+        })),
+        ...localRecipients,
     ];
-    const selectedRecipient = allRecipients.find(recipient => recipient.name === value.name) || { name: "", email: "" };
+    const selectedRecipient = allRecipients.find((recipient) => recipient.name === value.name) || { name: "", email: "unknown@example.com" };
     useEffect(() => {
         if (error) {
             console.error("Error loading contacts:", error);
@@ -38,10 +44,12 @@ const RecipientSelect = ({ value, onChange }) => {
         }
     }, [error]);
     const handleAddNewContact = async () => {
-        if (!newContact.name.trim())
+        if (!newContact.name.trim() || !newContact.email.trim()) {
+            toast.error("Please enter both name and email");
             return;
+        }
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user }, } = await supabase.auth.getUser();
             if (user) {
                 // Signed in user - save to database
                 const { data, error: insertError } = await supabase
@@ -58,7 +66,7 @@ const RecipientSelect = ({ value, onChange }) => {
                     throw insertError;
                 onChange({
                     name: data.name,
-                    email: data.email
+                    email: data.email,
                 });
                 toast.success("Contact added successfully!");
             }
@@ -66,7 +74,7 @@ const RecipientSelect = ({ value, onChange }) => {
                 // Guest user - save to local storage
                 const newRecipient = {
                     name: newContact.name,
-                    email: newContact.email
+                    email: newContact.email,
                 };
                 const updatedRecipients = [...localRecipients, newRecipient];
                 setLocalRecipients(updatedRecipients);
@@ -84,14 +92,22 @@ const RecipientSelect = ({ value, onChange }) => {
         }
     };
     const handleManualEntry = () => {
-        if (manualRecipient.name.trim()) {
-            onChange(manualRecipient);
-            setOpen(false);
-            setManualRecipient({ name: "", email: "" });
-            setIsManualEntry(false);
+        if (!manualRecipient.name.trim() || !manualRecipient.email.trim()) {
+            toast.error("Please enter both name and email");
+            return;
         }
+        onChange(manualRecipient);
+        setOpen(false);
+        setManualRecipient({ name: "", email: "unknown@example.com" });
+        setIsManualEntry(false);
     };
-    return (_jsxs(Popover, { open: open, onOpenChange: setOpen, children: [_jsx(PopoverTrigger, { asChild: true, children: _jsx(RecipientButton, { isLoading: isLoading, selectedRecipient: selectedRecipient, value: value, open: open }) }), _jsx(PopoverContent, { className: "w-full p-0", children: _jsxs(Command, { children: [_jsx(CommandInput, { placeholder: "Search recipients or enter manually..." }), _jsx(CommandList, { children: _jsxs("div", { className: "p-2 border-b", children: [_jsxs("div", { className: "flex gap-2 mb-2", children: [_jsx(Button, { size: "sm", variant: !isManualEntry ? "default" : "outline", onClick: () => setIsManualEntry(false), className: "flex-1", children: "Select Contact" }), _jsx(Button, { size: "sm", variant: isManualEntry ? "default" : "outline", onClick: () => setIsManualEntry(true), className: "flex-1", children: "Manual Entry" })] }), isManualEntry ? (_jsxs("div", { className: "space-y-2", children: [_jsx(Input, { placeholder: "Enter recipient name", value: manualRecipient.name, onChange: (e) => setManualRecipient(prev => ({ ...prev, name: e.target.value })), onKeyDown: (e) => e.key === "Enter" && handleManualEntry() }), _jsx(Input, { placeholder: "Enter recipient email (optional)", value: manualRecipient.email, onChange: (e) => setManualRecipient(prev => ({ ...prev, email: e.target.value })), onKeyDown: (e) => e.key === "Enter" && handleManualEntry() }), _jsx(Button, { size: "sm", onClick: handleManualEntry, disabled: !manualRecipient.name.trim(), className: "w-full", children: "Use Recipient" })] })) : (_jsxs(_Fragment, { children: [_jsx(RecipientList, { isLoading: isLoading, recipients: allRecipients, value: value, onSelect: (recipient) => {
+    return (_jsxs(Popover, { open: open, onOpenChange: setOpen, children: [_jsx(PopoverTrigger, { asChild: true, children: _jsx(RecipientButton, { isLoading: isLoading, selectedRecipient: selectedRecipient, value: value, open: open }) }), _jsx(PopoverContent, { className: "w-full p-0", children: _jsxs(Command, { children: [_jsx(CommandInput, { placeholder: "Search recipients or enter manually..." }), _jsx(CommandList, { children: _jsxs("div", { className: "p-2 border-b", children: [_jsxs("div", { className: "flex gap-2 mb-2", children: [_jsx(Button, { size: "sm", variant: !isManualEntry ? "default" : "outline", onClick: () => setIsManualEntry(false), className: "flex-1", children: "Select Contact" }), _jsx(Button, { size: "sm", variant: isManualEntry ? "default" : "outline", onClick: () => setIsManualEntry(true), className: "flex-1", children: "Manual Entry" })] }), isManualEntry ? (_jsxs("div", { className: "space-y-2", children: [_jsx(Input, { placeholder: "Enter recipient name", value: manualRecipient.name, onChange: (e) => setManualRecipient((prev) => ({
+                                                    ...prev,
+                                                    name: e.target.value,
+                                                })), onKeyDown: (e) => e.key === "Enter" && handleManualEntry() }), _jsx(Input, { placeholder: "Enter recipient email", value: manualRecipient.email, onChange: (e) => setManualRecipient((prev) => ({
+                                                    ...prev,
+                                                    email: e.target.value,
+                                                })), onKeyDown: (e) => e.key === "Enter" && handleManualEntry() }), _jsx(Button, { size: "sm", onClick: handleManualEntry, disabled: !manualRecipient.name.trim() || !manualRecipient.email.trim(), className: "w-full", children: "Use Recipient" })] })) : (_jsxs(_Fragment, { children: [_jsx(RecipientList, { isLoading: isLoading, recipients: allRecipients, value: value, onSelect: (recipient) => {
                                                     onChange(recipient);
                                                     setOpen(false);
                                                 }, onOpenChange: setOpen }), _jsx("div", { className: "mt-2", children: _jsx(Button, { size: "sm", variant: "outline", onClick: () => setIsAddingNew(true), className: "w-full", children: "Add New Contact" }) })] }))] }) })] }) })] }));

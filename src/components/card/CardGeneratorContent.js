@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wand2, AlignLeft, AlignCenter, AlignRight, RefreshCw } from "lucide-react";
+import { Wand2, AlignLeft, AlignCenter, AlignRight, RefreshCw, } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import CardForm from "./CardForm";
 import CardStyleSelector from "./CardStyleSelector";

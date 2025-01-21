@@ -25,14 +25,12 @@ const GiftQuiz = () => {
   const [matchScore, setMatchScore] = useState(0);
 
   const { data: contacts } = useQuery({
-    queryKey: ['contacts'],
+    queryKey: ["contacts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('contacts')
-        .select('*');
+      const { data, error } = await supabase.from("contacts").select("*");
       if (error) throw error;
       return data as Contact[];
-    }
+    },
   });
 
   useEffect(() => {
@@ -44,13 +42,13 @@ const GiftQuiz = () => {
 
   const calculateMatchScore = () => {
     if (!selectedContact) return;
-    
+
     // Simple scoring based on filled information
     let score = 0;
     if (selectedContact) score += 30;
     if (interests.length > 0) score += 40;
     if (budget[0] !== budget[1]) score += 30;
-    
+
     setMatchScore(score);
   };
 
@@ -79,7 +77,9 @@ const GiftQuiz = () => {
             {contacts?.map((contact) => (
               <Button
                 key={contact.id}
-                variant={selectedContact?.id === contact.id ? "default" : "outline"}
+                variant={
+                  selectedContact?.id === contact.id ? "default" : "outline"
+                }
                 onClick={() => setSelectedContact(contact)}
                 className="justify-start"
               >

@@ -24,7 +24,7 @@ const BudgetRangeControl = ({ value, onChange }: BudgetRangeControlProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label>Budget Range</Label>
-        <motion.span 
+        <motion.span
           key={`${localValue[0]}-${localValue[1]}`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}

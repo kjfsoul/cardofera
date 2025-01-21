@@ -19,7 +19,10 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (error) {
         toast.error(error.message);
@@ -78,11 +81,7 @@ const SignIn = () => {
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isLoading}
-          >
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>

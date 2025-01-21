@@ -13,7 +13,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "ss01" on, "ss02" on, "cv01" on, "cv02" on;
+    font-feature-settings:
+      "ss01" on,
+      "ss02" on,
+      "cv01" on,
+      "cv02" on;
   }
 }
 

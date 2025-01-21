@@ -1,10 +1,6 @@
 import { Check } from "lucide-react";
 import { cn } from "../../../lib/utils";
-import {
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "../../ui/command";
+import { CommandEmpty, CommandGroup, CommandItem } from "../../ui/command";
 import { Recipient } from "../../../types/contact";
 
 interface RecipientListProps {
@@ -15,12 +11,12 @@ interface RecipientListProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export const RecipientList = ({ 
-  isLoading, 
-  recipients, 
-  value, 
+export const RecipientList = ({
+  isLoading,
+  recipients,
+  value,
   onSelect,
-  onOpenChange 
+  onOpenChange,
 }: RecipientListProps) => {
   return (
     <>
@@ -33,7 +29,7 @@ export const RecipientList = ({
             key={recipient.name}
             value={recipient.name} // This remains as string for CommandItem
             onSelect={(currentValue) => {
-              const selected = recipients.find(r => r.name === currentValue);
+              const selected = recipients.find((r) => r.name === currentValue);
               if (selected) {
                 onSelect(selected);
                 onOpenChange(false);
@@ -43,7 +39,7 @@ export const RecipientList = ({
             <Check
               className={cn(
                 "mr-2 h-4 w-4",
-                value?.name === recipient.name ? "opacity-100" : "opacity-0"
+                value?.name === recipient.name ? "opacity-100" : "opacity-0",
               )}
             />
             <span>{recipient.name}</span>

@@ -24,7 +24,7 @@ const styles = {
         textStyle: "font-playfair",
     },
 };
-const CardStylePreview = ({ style, selected, onSelect }) => {
+const CardStylePreview = ({ style, selected, onSelect, }) => {
     const styleConfig = styles[style];
     return (_jsx(motion.div, { whileHover: { scale: 1.02 }, whileTap: { scale: 0.98 }, children: _jsx(Card, { className: cn("p-4 cursor-pointer transition-all duration-200", styleConfig.className, selected && "ring-2 ring-primary ring-offset-2"), onClick: () => onSelect(style), children: _jsxs("div", { className: "aspect-video rounded-md bg-white/80 backdrop-blur-sm p-3", children: [_jsx("h3", { className: cn("text-lg font-medium capitalize", styleConfig.textStyle), children: style }), _jsx("p", { className: "text-sm text-muted-foreground mt-1", children: styleConfig.preview })] }) }) }));
 };

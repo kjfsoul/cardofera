@@ -1,12 +1,11 @@
 import { Recipient } from "./contact";
 
 export interface CardData {
-  recipientName: Recipient;
+  recipient: Recipient;
   occasion: string;
   message: string;
   style: string;
   deliveryMethod: string;
-  recipientEmail: string;
   textPosition: "left" | "center" | "right";
   fontSize: number;
   fontFamily: string;

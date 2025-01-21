@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Calendar, Gift, Mail, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-const NavigationButtons = ({ activeSection, onSectionChange }) => {
+const NavigationButtons = ({ activeSection, onSectionChange, }) => {
     const buttons = [
         { id: "cards", label: "Birthday Cards", icon: Mail },
         { id: "gifts", label: "Gift Finder", icon: Gift },

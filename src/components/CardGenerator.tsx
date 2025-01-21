@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
+import { CardData } from "@/types/card";
 import CardHeader from "./card/CardHeader";
 import CardGeneratorContent from "./card/CardGeneratorContent";
 import CardPreviewSection from "./card/CardPreviewSection";
@@ -9,21 +10,29 @@ import { useNavigate } from "react-router-dom";
 import { CardDelivery } from "./card/CardDelivery";
 import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
 import { trackEvent } from "@/utils/analytics";
-import type { CardData } from "@/types/card";
+
+type Recipient = {
+  name: string;
+  email: string;
+};
+
+interface State extends CardData {}
 
 const CardGenerator = () => {
   const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
   const [cardData, setCardData] = useState<CardData>({
-    recipientName: "",
+    recipient: {
+      name: "",
+      email: "",
+    },
     occasion: "birthday",
     message: "",
     style: "modern",
     deliveryMethod: "email",
-    recipientEmail: "",
     textPosition: "center",
     fontSize: 24,
-    fontFamily: "Inter"
+    fontFamily: "Inter",
   });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -34,7 +43,9 @@ const CardGenerator = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Please sign in to create cards");
         navigate("/signin");
@@ -45,7 +56,7 @@ const CardGenerator = () => {
 
   useEffect(() => {
     let completed = 0;
-    if (cardData.recipientName) completed++;
+    if (cardData.recipient.name) completed++;
     if (cardData.message) completed++;
     if (cardData.style !== "modern") completed++;
     if (selectedImage) completed++;
@@ -53,16 +64,18 @@ const CardGenerator = () => {
   }, [cardData, selectedImage]);
 
   const handleGenerate = async () => {
-    if (!cardData.recipientName || !cardData.message) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
+      if (!cardData.recipient.name || !cardData.message || !cardData.recipient.email) {
+        toast.error("Please fill in all required fields including recipient email");
+        return;
+      }
 
     setIsGenerating(true);
     setGenerationError(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Please sign in to create cards");
         navigate("/signin");
@@ -70,12 +83,15 @@ const CardGenerator = () => {
       }
 
       if (!selectedImage) {
-        const { data, error } = await supabase.functions.invoke('generate-image', {
-          body: { 
-            prompt: `${cardData.occasion} card with message: ${cardData.message}`,
-            apiUrl: `${window.location.origin}/api/generate-image`
-          }
-        });
+        const { data, error } = await supabase.functions.invoke(
+          "generate-image",
+          {
+            body: {
+              prompt: `${cardData.occasion} card with message: ${cardData.message}`,
+              apiUrl: `${window.location.origin}/api/generate-image`,
+            },
+          },
+        );
 
         if (error) throw error;
         if (data?.image) {
@@ -83,16 +99,15 @@ const CardGenerator = () => {
         }
       }
 
-      // Save card and track analytics
       const { data: cardRecord, error: saveError } = await supabase
-        .from('card_deliveries')
+        .from("card_deliveries")
         .insert([
           {
-            recipient_email: cardData.recipientEmail,
+            recipient_email: cardData.recipient.email || '',
             card_image: selectedImage,
             message: cardData.message,
-            status: 'pending'
-          }
+            status: "pending",
+          },
         ])
         .select()
         .single();
@@ -101,13 +116,13 @@ const CardGenerator = () => {
 
       await trackEvent("card_created", cardRecord.id, {
         occasion: cardData.occasion,
-        style: cardData.style
+        style: cardData.style,
       });
 
       toast.success("Card generated successfully!");
     } catch (error) {
-      console.error('Generation error:', error);
-      setGenerationError(error.message);
+      console.error("Generation error:", error);
+      setGenerationError((error as Error).message);
       toast.error("Failed to generate card. Please try again.");
     } finally {
       setIsGenerating(false);
@@ -121,7 +136,7 @@ const CardGenerator = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <CardGeneratorContent
           cardData={cardData}
-          setCardData={setCardData}
+          setCardData={setCardData as (data: CardData) => void}
           selectedImage={selectedImage}
           setSelectedImage={setSelectedImage}
           isGenerating={isGenerating}
@@ -135,20 +150,20 @@ const CardGenerator = () => {
           <div className="lg:sticky lg:top-6">
             <CardPreviewSection
               selectedImage={selectedImage}
+              imageUrl={selectedImage}
               cardMessage={cardData.message}
               isSoundEnabled={isSoundEnabled}
-              isGenerating={isGenerating}
               cardStyle={cardData.style}
               textPosition={cardData.textPosition}
               fontSize={cardData.fontSize}
               fontFamily={cardData.fontFamily}
             />
-            
+
             {selectedImage && !isGenerating && (
               <Card className="mt-4 p-4">
                 <CardDelivery
                   cardRef={cardRef}
-                  recipientEmail={cardData.recipientEmail}
+                  recipientEmail={cardData.recipient.email}
                   message={cardData.message}
                 />
               </Card>

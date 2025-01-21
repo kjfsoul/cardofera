@@ -20,7 +20,7 @@ export const useThreeScene = (mountRef: React.RefObject<HTMLDivElement>) => {
       60,
       mountRef.current.clientWidth / mountRef.current.clientHeight,
       0.1,
-      1000
+      1000,
     );
     camera.position.z = 4;
     camera.position.y = 0.5;
@@ -31,7 +31,10 @@ export const useThreeScene = (mountRef: React.RefObject<HTMLDivElement>) => {
       antialias: true,
       alpha: true,
     });
-    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+    renderer.setSize(
+      mountRef.current.clientWidth,
+      mountRef.current.clientHeight,
+    );
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace;

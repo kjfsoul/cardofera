@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Mail, MessageSquare, Send, Phone } from "lucide-react";
-const DeliverySelector = ({ selectedMethod, onMethodSelect, isPremium }) => {
+const DeliverySelector = ({ selectedMethod, onMethodSelect, isPremium, }) => {
     const deliveryMethods = [
         { id: "email", icon: Mail, label: "Email" },
         { id: "text", icon: MessageSquare, label: "Text", premium: true },
