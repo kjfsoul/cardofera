@@ -34,7 +34,7 @@ const CardGenerator = () => {
     fontSize: 24,
     fontFamily: "Inter",
   });
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [isPremium] = useState(false);
@@ -64,10 +64,10 @@ const CardGenerator = () => {
   }, [cardData, selectedImage]);
 
   const handleGenerate = async () => {
-      if (!cardData.recipient.name || !cardData.message || !cardData.recipient.email) {
-        toast.error("Please fill in all required fields including recipient email");
-        return;
-      }
+    if (!cardData.recipient.name || !cardData.message || !cardData.recipient.email) {
+      toast.error("Please fill in all required fields including recipient email");
+      return;
+    }
 
     setIsGenerating(true);
     setGenerationError(null);
@@ -136,7 +136,7 @@ const CardGenerator = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <CardGeneratorContent
           cardData={cardData}
-          setCardData={setCardData as (data: CardData) => void}
+          setCardData={setCardData}
           selectedImage={selectedImage}
           setSelectedImage={setSelectedImage}
           isGenerating={isGenerating}
