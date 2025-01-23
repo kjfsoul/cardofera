@@ -11,13 +11,6 @@ import { CardDelivery } from "./card/CardDelivery";
 import { CardDeliveryTracker } from "./card/CardDeliveryTracker";
 import { trackEvent } from "@/utils/analytics";
 
-type Recipient = {
-  name: string;
-  email: string;
-};
-
-interface State extends CardData {}
-
 const CardGenerator = () => {
   const navigate = useNavigate();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -34,7 +27,7 @@ const CardGenerator = () => {
     fontSize: 24,
     fontFamily: "Inter",
   });
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [isPremium] = useState(false);
