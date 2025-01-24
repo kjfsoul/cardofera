@@ -14,7 +14,7 @@ import CardStyleSelector from "./CardStyleSelector";
 import CardImageSection from "./CardImageSection";
 import DeliverySelector from "./DeliverySelector";
 import PremiumFeatures from "./PremiumFeatures";
-import type { CardGeneratorProps } from "@/types/card";
+import type { CardGeneratorProps, CardStyle } from "@/types/card";
 
 const CardGeneratorContent = ({
   cardData,
@@ -141,7 +141,7 @@ const CardGeneratorContent = ({
         <h2 className="text-2xl font-semibold mb-4">3. Choose Your Style</h2>
         <CardStyleSelector
           selectedStyle={cardData.style}
-          onStyleSelect={(style) => setCardData({ ...cardData, style })}
+          onStyleSelect={(style: CardStyle) => setCardData({ ...cardData, style })}
         />
         <div className="mt-6 space-y-4">
           <div>
