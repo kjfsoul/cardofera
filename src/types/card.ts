@@ -22,5 +22,5 @@ export interface CardGeneratorProps {
   handleGenerate: () => Promise<void>;
   progress: number;
   isPremium: boolean;
-  generationError?: string | null;
+  generationError: string | null;
 }
