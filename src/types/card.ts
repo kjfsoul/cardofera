@@ -16,8 +16,8 @@ export interface CardData {
 export interface CardGeneratorProps {
   cardData: CardData;
   setCardData: (data: CardData) => void;
-  selectedImage: string | null;
-  setSelectedImage: (image: string | null) => void;
+  selectedImage: string | undefined;
+  setSelectedImage: (image: string | undefined) => void;
   isGenerating: boolean;
   handleGenerate: () => Promise<void>;
   progress: number;
