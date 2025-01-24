@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { CardStyle } from "@/types/card";
 
 interface CardStyleSelectorProps {
-  selectedStyle: string;
-  onStyleSelect: (style: string) => void;
+  selectedStyle: CardStyle;
+  onStyleSelect: (style: CardStyle) => void;
 }
 
 const CardStyleSelector = ({
@@ -12,22 +13,22 @@ const CardStyleSelector = ({
 }: CardStyleSelectorProps) => {
   const styles = [
     {
-      name: "modern",
+      name: "modern" as CardStyle,
       preview: "/modern-preview.svg",
       description: "Clean lines and minimalist design",
     },
     {
-      name: "classic",
+      name: "classic" as CardStyle,
       preview: "/classic-preview.svg",
       description: "Timeless elegance with traditional elements",
     },
     {
-      name: "playful",
+      name: "playful" as CardStyle,
       preview: "/playful-preview.svg",
       description: "Bright colors and fun patterns",
     },
     {
-      name: "elegant",
+      name: "elegant" as CardStyle,
       preview: "/elegant-preview.svg",
       description: "Sophisticated and refined design",
     },
