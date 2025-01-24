@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build", 
+    "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "test": "jest --config jest.config.cjs --coverage",
     "test:watch": "jest --watch",
