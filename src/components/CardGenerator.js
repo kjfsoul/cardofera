@@ -26,7 +26,7 @@ const CardGenerator = () => {
         fontSize: 24,
         fontFamily: "Inter",
     });
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(undefined);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSoundEnabled, setIsSoundEnabled] = useState(false);
     const [isPremium] = useState(false);
