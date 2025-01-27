@@ -11,6 +11,7 @@ interface CardPreview3DProps {
   text?: string;
   enableSound?: boolean;
   style?: string;
+  textureUrl?: string;
 }
 
 const CardPreview3D = ({
@@ -18,19 +19,18 @@ const CardPreview3D = ({
   text,
   enableSound = false,
   style = "modern",
+  textureUrl,
 }: CardPreview3DProps) => {
   const mountRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { sceneRef, cameraRef, rendererRef, cardRef } = useThreeScene(mountRef);
 
-  // Handle sound effects
   useEffect(() => {
     if (enableSound) {
       audioRef.current = new Audio("/card-open.mp3");
     }
   }, [enableSound]);
 
-  // Update texture when image changes
   useEffect(() => {
     if (!imageUrl || !cardRef.current) return;
 
@@ -77,6 +77,7 @@ const CardPreview3D = ({
               scene={sceneRef.current}
               cardRef={cardRef}
               style={style}
+              textureUrl={textureUrl}
             />
           )}
           {cameraRef.current && rendererRef.current && (

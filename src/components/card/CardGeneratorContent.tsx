@@ -8,6 +8,7 @@ import DeliverySection from "./generator/DeliverySection";
 import { Button } from "@/components/ui/button";
 import { Eraser } from "lucide-react";
 import { toast } from "sonner";
+import TextureManager from "./TextureManager";
 
 const CardGeneratorContent = ({
   cardData,
@@ -25,6 +26,9 @@ const CardGeneratorContent = ({
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null,
   );
+  const [selectedTexture, setSelectedTexture] = useState<string | undefined>(
+    undefined,
+  );
 
   const handleImageSelect = (index: number) => {
     setSelectedImageIndex(index);
@@ -41,6 +45,14 @@ const CardGeneratorContent = ({
     }
   };
 
+  const handleTextureSelect = (textureUrl: string) => {
+    setSelectedTexture(textureUrl === "none" ? undefined : textureUrl);
+    setCardData({
+      ...cardData,
+      texture: textureUrl === "none" ? undefined : textureUrl,
+    });
+  };
+
   const handleReset = () => {
     setCardData({
       ...cardData,
@@ -49,8 +61,10 @@ const CardGeneratorContent = ({
       textPosition: "center",
       fontSize: 16,
       fontFamily: "Inter",
+      texture: undefined,
     });
     setSelectedImage(undefined);
+    setSelectedTexture(undefined);
     setGeneratedImages([]);
     setSelectedImageIndex(null);
     toast.success("All card settings have been reset");
@@ -76,6 +90,8 @@ const CardGeneratorContent = ({
         isGenerating={isGenerating}
         handleGenerate={handleGenerate}
       />
+
+      <TextureManager onTextureSelect={handleTextureSelect} />
 
       <CardImageSection
         showImageSearch={showImageSearch}
