@@ -110,6 +110,36 @@ export type Database = {
         }
         Relationships: []
       }
+      card_textures: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_preset: boolean | null
+          name: string
+          texture_url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_preset?: boolean | null
+          name: string
+          texture_url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_preset?: boolean | null
+          name?: string
+          texture_url?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           address: Json | null
