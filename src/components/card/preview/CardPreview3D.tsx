@@ -27,7 +27,10 @@ const CardPreview3D = ({
   useEffect(() => {
     if (!sceneRef.current) return;
 
-    const geometry = new THREE.BoxGeometry(3, 4, 0.1);
+    // Create a folded card geometry
+    const frontGeometry = new THREE.BoxGeometry(3, 4, 0.1);
+    const backGeometry = new THREE.BoxGeometry(3, 4, 0.1);
+    
     const material = new THREE.MeshPhysicalMaterial({
       color: 0xffffff,
       metalness: 0.1,
@@ -38,19 +41,28 @@ const CardPreview3D = ({
       side: THREE.DoubleSide,
     });
 
-    const card = new THREE.Mesh(geometry, material);
-    card.castShadow = true;
-    card.receiveShadow = true;
-    card.position.y = 0.5;
-    sceneRef.current.add(card);
-    cardRef.current = card;
+    // Create front and back panels
+    const frontPanel = new THREE.Mesh(frontGeometry, material);
+    const backPanel = new THREE.Mesh(backGeometry, material);
+
+    // Position the panels
+    frontPanel.position.set(1.5, 0.5, 0);
+    backPanel.position.set(-1.5, 0.5, 0);
+
+    // Create a group to hold both panels
+    const cardGroup = new THREE.Group();
+    cardGroup.add(frontPanel);
+    cardGroup.add(backPanel);
+
+    sceneRef.current.add(cardGroup);
+    cardRef.current = cardGroup;
 
     if (enableSound) {
       audioRef.current = new Audio("/card-open.mp3");
     }
 
     return () => {
-      sceneRef.current?.remove(card);
+      sceneRef.current?.remove(cardGroup);
     };
   }, [enableSound]);
 
@@ -72,7 +84,7 @@ const CardPreview3D = ({
     >
       {sceneRef.current && (
         <>
-          <CardLighting scene={sceneRef.current} />
+          <CardLighting scene={sceneRef.current} style={style} />
           {cardRef.current && (
             <CardMaterial
               mesh={cardRef.current}
