@@ -1,92 +1,68 @@
-import express from "express";
-import { HfInference } from "@huggingface/inference";
-import cors from "cors";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { HfInference } from "https://esm.sh/@huggingface/inference@2.3.2"
 
-const app = express();
-const port = 3000;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const MAX_REQUESTS = 5;
-let lastRequestTime = 0;
-let requestCount = 0;
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
+  }
 
-app.use(cors());
-app.use(express.json());
-
-app.post("/generate-image", async (req, res) => {
   try {
-    // Validate API key
-    const huggingFaceToken = process.env.HUGGING_FACE;
-    if (!huggingFaceToken) {
-      console.error("HuggingFace API key not configured");
-      return res.status(500).json({
-        error: "Configuration Error",
-        details:
-          "HuggingFace API key not configured. Please set up the HUGGING_FACE environment variable.",
-      });
+    const { prompt } = await req.json()
+    if (!prompt) {
+      throw new Error('Prompt is required')
     }
 
-    // Rate limiting
-    const now = Date.now();
-    if (now - lastRequestTime > RATE_LIMIT_WINDOW) {
-      requestCount = 0;
-      lastRequestTime = now;
-    }
+    const hf = new HfInference(Deno.env.get('HUGGING_FACE'))
+    console.log("Generating images with prompt:", prompt)
 
-    if (requestCount >= MAX_REQUESTS) {
-      return res.status(429).json({
-        error: "Rate limit reached",
-        details: "Please wait a minute before trying again",
-        retryAfter: 60,
-      });
-    }
-
-    requestCount++;
-
-    // Validate request body
-    const { prompt, num_images = 3 } = req.body;
-    if (!prompt || typeof prompt !== "string") {
-      return res.status(400).json({
-        error: "Invalid Request",
-        details: "Prompt is required and must be a string",
-      });
-    }
-
-    console.log("Generating", num_images, "images with prompt:", prompt);
-
-    const hf = new HfInference(huggingFaceToken);
-
-    // Generate multiple images with error handling
-    const imagePromises = Array.from({ length: num_images }, async () => {
+    // Generate exactly 3 images
+    const imagePromises = Array(3).fill(null).map(async () => {
       try {
         const image = await hf.textToImage({
           inputs: prompt,
           model: "stabilityai/stable-diffusion-2",
-        });
-        const arrayBuffer = await image.arrayBuffer();
-        return Buffer.from(arrayBuffer).toString("base64");
+        })
+        const arrayBuffer = await image.arrayBuffer()
+        return Buffer.from(arrayBuffer).toString('base64')
       } catch (error) {
-        console.error("Error generating single image:", error);
-        throw error;
+        console.error("Error generating single image:", error)
+        return null
       }
-    });
+    })
 
-    const imageUrls = await Promise.all(imagePromises);
+    const results = await Promise.all(imagePromises)
+    const validImages = results.filter(Boolean).map(base64 => 
+      `data:image/png;base64,${base64}`
+    )
 
-    return res.json({
-      success: true,
-      images: imageUrls.map((base64) => `data:image/png;base64,${base64}`),
-    });
+    // Pad with placeholders if needed
+    const finalImages = [
+      ...validImages,
+      ...Array(3 - validImages.length).fill('/placeholder.svg')
+    ].slice(0, 3)
+
+    console.log(`Generated ${validImages.length} valid images`)
+    return new Response(
+      JSON.stringify({ images: finalImages }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
   } catch (error) {
-    console.error("Error generating images:", error);
-    return res.status(500).json({
-      error: "Generation Error",
-      details: error.message || "Failed to generate images",
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
+    console.error("Error in generate-image function:", error)
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        status: 500,
+        timestamp: new Date().toISOString()
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500 
+      }
+    )
   }
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+})
