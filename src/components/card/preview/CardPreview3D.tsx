@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useThreeScene } from "./useThreeScene";
 import { CardLighting } from "./CardLighting";
