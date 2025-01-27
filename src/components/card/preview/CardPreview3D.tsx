@@ -1,17 +1,16 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useThreeScene } from "./useThreeScene";
-import { CardLighting } from "./CardLighting";
-import { CardMaterial } from "./CardMaterial";
-import { CardAnimation } from "./CardAnimation";
+import { LightingSetup } from "./LightingSetup";
+import { CardMesh } from "./CardMesh";
+import { CameraController } from "./CameraController";
 import { toast } from "sonner";
-import type { CardStyle } from "@/types/card";
 
 interface CardPreview3DProps {
   imageUrl?: string;
   text?: string;
   enableSound?: boolean;
-  style?: CardStyle;
+  style?: string;
 }
 
 const CardPreview3D = ({
@@ -24,38 +23,35 @@ const CardPreview3D = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { sceneRef, cameraRef, rendererRef, cardRef } = useThreeScene(mountRef);
 
+  // Handle sound effects
   useEffect(() => {
-    if (!sceneRef.current) return;
-
-    // Create a folded card geometry
-    const frontGeometry = new THREE.BoxGeometry(3, 4, 0.1);
-    const material = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.1,
-      roughness: 0.2,
-      reflectivity: 0.5,
-      clearcoat: 0.3,
-      clearcoatRoughness: 0.2,
-      side: THREE.DoubleSide,
-    });
-
-    // Create front panel
-    const card = new THREE.Mesh(frontGeometry, material);
-    card.castShadow = true;
-    card.receiveShadow = true;
-    card.position.y = 0.5;
-
-    sceneRef.current.add(card);
-    cardRef.current = card;
-
     if (enableSound) {
       audioRef.current = new Audio("/card-open.mp3");
     }
-
-    return () => {
-      sceneRef.current?.remove(card);
-    };
   }, [enableSound]);
+
+  // Update texture when image changes
+  useEffect(() => {
+    if (!imageUrl || !cardRef.current) return;
+
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(
+      imageUrl,
+      (texture) => {
+        if (cardRef.current) {
+          texture.colorSpace = THREE.SRGBColorSpace;
+          texture.anisotropy = 16;
+          (cardRef.current.material as THREE.MeshPhysicalMaterial).map = texture;
+          (cardRef.current.material as THREE.MeshPhysicalMaterial).needsUpdate = true;
+        }
+      },
+      undefined,
+      (error) => {
+        console.error("Error loading texture:", error);
+        toast.error("Failed to load card image");
+      }
+    );
+  }, [imageUrl]);
 
   const handleInteraction = () => {
     if (enableSound && audioRef.current) {
@@ -75,25 +71,20 @@ const CardPreview3D = ({
     >
       {sceneRef.current && (
         <>
-          <CardLighting scene={sceneRef.current} style={style} />
+          <LightingSetup scene={sceneRef.current} style={style} />
           {cardRef.current && (
-            <CardMaterial
-              mesh={cardRef.current}
-              imageUrl={imageUrl}
+            <CardMesh
+              scene={sceneRef.current}
+              cardRef={cardRef}
               style={style}
             />
           )}
-          {cardRef.current &&
-            rendererRef.current &&
-            sceneRef.current &&
-            cameraRef.current && (
-              <CardAnimation
-                card={cardRef.current}
-                renderer={rendererRef.current}
-                scene={sceneRef.current}
-                camera={cameraRef.current}
-              />
-            )}
+          {cameraRef.current && rendererRef.current && (
+            <CameraController
+              camera={cameraRef.current}
+              renderer={rendererRef.current}
+            />
+          )}
         </>
       )}
     </div>
