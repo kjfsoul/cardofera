@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { useThreeScene } from "./useThreeScene";
-import { LightingSetup } from "./LightingSetup";
-import { CardMesh } from "./CardMesh";
-import { CameraController } from "./CameraController";
+import { useThreeScene } from "./preview/useThreeScene";
+import { LightingSetup } from "./preview/LightingSetup";
+import { CardMesh } from "./preview/CardMesh";
+import { CameraController } from "./preview/CameraController";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
