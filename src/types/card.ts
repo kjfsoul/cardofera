@@ -11,6 +11,7 @@ export interface CardData {
   textPosition: "left" | "center" | "right";
   fontSize: number;
   fontFamily: string;
+  texture?: string; // Added texture property as optional
 }
 
 export interface CardGeneratorProps {
