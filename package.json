@@ -45,7 +45,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "@react-three/drei": "^9.121.3",
     "@react-three/fiber": "^8.17.12",
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.47.11",
     "@types/html2canvas": "^0.5.35",
     "@types/react-day-picker": "^5.2.1",
     "@types/testing-library__jest-dom": "^5.14.9",
