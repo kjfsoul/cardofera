@@ -15,6 +15,10 @@ const SignIn = () => {
         e.preventDefault();
         if (isLoading)
             return;
+        if (!email || !password) {
+            toast.error("Please enter both email and password");
+            return;
+        }
         setIsLoading(true);
         try {
             const { data, error } = await supabase.auth.signInWithPassword({
@@ -22,16 +26,23 @@ const SignIn = () => {
                 password,
             });
             if (error) {
-                toast.error(error.message);
+                if (error.message === "Invalid login credentials") {
+                    toast.error("Invalid email or password. Please try again.");
+                }
+                else {
+                    toast.error("Failed to sign in. Please try again later.");
+                }
+                console.error("Sign in error:", error);
                 return;
             }
             if (data.session) {
                 toast.success("Successfully signed in!");
-                navigate("/"); // Redirect to the Index page
+                navigate("/");
             }
         }
         catch (error) {
-            toast.error(error.message);
+            console.error("Unexpected error during sign in:", error);
+            toast.error("An unexpected error occurred. Please try again later.");
         }
         finally {
             setIsLoading(false);

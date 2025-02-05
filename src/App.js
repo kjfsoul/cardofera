@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./components/NotFound";
+import TestUseContacts from './components/TestUseContacts'; // Import the test component
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -28,6 +29,7 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 const App = () => {
-    return (_jsx(React.StrictMode, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(BrowserRouter, { children: _jsx(AuthProvider, { children: _jsxs(TooltipProvider, { delayDuration: 0, children: [_jsx(Toaster, {}), _jsx(Sonner, {}), _jsxs(Routes, { children: [_jsx(Route, { path: "/signin", element: _jsx(SignIn, {}) }), _jsx(Route, { path: "/signup", element: _jsx(SignUp, {}) }), _jsx(Route, { path: "/", element: _jsx(ProtectedRoute, { children: _jsx(Index, {}) }) }), _jsx(Route, { path: "/404", element: _jsx(NotFound, {}) }), _jsx(Route, { path: "*", element: _jsx(Navigate, { to: "/404", replace: true }) })] })] }) }) }) }) }));
+    return (_jsx(React.StrictMode, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(BrowserRouter, { children: _jsx(AuthProvider, { children: _jsxs(TooltipProvider, { delayDuration: 0, children: [_jsx(Toaster, {}), _jsx(Sonner, {}), _jsxs(Routes, { children: [_jsx(Route, { path: "/signin", element: _jsx(SignIn, {}) }), _jsx(Route, { path: "/signup", element: _jsx(SignUp, {}) }), _jsx(Route, { path: "/", element: _jsx(ProtectedRoute, { children: _jsx(Index, {}) }) }), _jsx(Route, { path: "/test-contacts" // New route for testing contacts
+                                        , element: _jsxs(ProtectedRoute, { children: [_jsx(TestUseContacts, {}), " "] }) }), _jsx(Route, { path: "/404", element: _jsx(NotFound, {}) }), _jsx(Route, { path: "*", element: _jsx(Navigate, { to: "/404", replace: true }) })] })] }) }) }) }) }));
 };
 export default App;

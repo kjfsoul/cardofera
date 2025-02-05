@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./components/NotFound";
+import TestUseContacts from './components/TestUseContacts'; // Import the test component
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +52,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/test-contacts" // New route for testing contacts
+                  element={
+                    <ProtectedRoute>
+                      <TestUseContacts /> {/* Render the test component here */}
                     </ProtectedRoute>
                   }
                 />
