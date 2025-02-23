@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Contact } from "@/types/contact";
+export { Contact };
 import { toast } from "sonner";
 
 export const useContacts = () => {
